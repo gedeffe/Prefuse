@@ -71,6 +71,17 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Because two tests expects to have a US locale (it won't works with 
+				french for instance), and changing the locale programmatically in these tests 
+				doesn't work either. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18</version>
+				<configuration>
+					<argLine>-Duser.language=en -Duser.region=US</argLine>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>

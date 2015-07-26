@@ -2,6 +2,7 @@ package test.prefuse.data.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,6 +33,16 @@ public class CSVTableReaderTest implements TableTestData {
 	 */
 	@Test
 	public void testReadTableInputStream() {
+		/*
+		 * this test assume that current locale is US (it won't work in other
+		 * countries like France in Europe ...). So we will force the locale to
+		 * manipulate Date and Time using expected locale.
+		 */
+		final Locale defaultLocale = Locale.getDefault();
+		if (!defaultLocale.equals(Locale.US)) {
+			Locale.setDefault(Locale.US);
+		}
+
 		// prepare data
 		final byte[] data = CSV_DATA.getBytes();
 		final InputStream is = new ByteArrayInputStream(data);
