@@ -70,7 +70,7 @@ public class TreeView extends Display {
 	public static final String TREE_CHI = "/chi-ontology.xml.gz";
 
 	private static final String tree = "tree";
-	private static final String treeNodes = "tree.nodes";
+	public static final String treeNodes = "tree.nodes";
 	private static final String treeEdges = "tree.edges";
 
 	private final LabelRenderer m_nodeRenderer;

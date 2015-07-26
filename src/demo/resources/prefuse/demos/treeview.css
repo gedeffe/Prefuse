@@ -1,0 +1,18 @@
+/** 
+ * treeview.css: place in same directory as JavaFxTreeView.java and  
+ * ensure the build system copies it to the same directory as JavaFxTreeView.class  
+ */
+
+.root {
+  -fx-padding: 10; 
+  -fx-background-color: white;
+  -fx-foreground-color: black;
+  -fx-font-family: Tahoma;
+  -fx-font-size: 11;
+}
+
+.label {
+  -fx-alignment: bottom-left;
+  -fx-label-padding: 3,0,0,0;
+}
+

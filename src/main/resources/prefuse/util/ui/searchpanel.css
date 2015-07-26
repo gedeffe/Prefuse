@@ -1,0 +1,18 @@
+/** 
+ * searchpanel.css: place in same directory as JfxSearchPanel.java and  
+ * ensure the build system copies it to the same directory as JfxSearchPanel.class  
+ */
+
+.searchpanel {
+  -fx-background-color: white;
+  -fx-foreground-color: black;
+  -fx-background-radius: 16.4, 15;
+  -fx-background-insets: -1.4, 0;
+  -fx-border-radius: 15;
+  -fx-border-width: 1;
+  -fx-border-color: dimgrey;
+  -fx-padding: 5;
+  -fx-font-family: Tahoma;
+  -fx-font-size: 11;
+}
+

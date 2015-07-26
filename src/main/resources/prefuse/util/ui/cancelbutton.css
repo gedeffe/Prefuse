@@ -1,0 +1,28 @@
+/** 
+ * cancelbutton.css: place in same directory as JfxCancelButton.java and  
+ * ensure the build system copies it to the same directory as JfxCancelButton.class  
+ */
+
+.cancelbutton .button {
+  -fx-background-color: white;
+  -fx-background-radius: 16.4, 15;
+  -fx-background-insets: -1.4, 0;
+  -fx-border-radius: 15;
+  -fx-border-width: 1;
+  -fx-border-color: dimgrey;
+  -fx-padding: 0;
+  -fx-font-size: 0;
+}
+
+.cancelbutton .button:focused {
+  -fx-background-color: -fx-focus-color, white;
+}
+
+.cancelbutton .cancelicon {
+  -fx-stroke: dimgrey;
+  -fx-stroke-width: 1;
+}
+
+.cancelbutton:hover {
+  -fx-effect: innershadow(gaussian, blue, 5, 0, 0, 0);
+}
