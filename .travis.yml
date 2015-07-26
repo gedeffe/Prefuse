@@ -1,2 +1,4 @@
 language: java
-
+# indicate which jdk to use for JavaFX
+jdk:
+  - oraclejdk8
