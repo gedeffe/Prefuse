@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="20.0" prefWidth="20.0" styleClass="cancelbutton" stylesheets="@cancelbutton.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button focusTraversable="false" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" />
+      <Path mouseTransparent="true" styleClass="cancelicon">
+          <elements>
+              <MoveTo absolute="false" x="6.0" y="6.0" />
+            <LineTo absolute="false" x="14.0" y="14.0" />
+            <MoveTo absolute="false" x="6.0" y="14.0" />
+            <LineTo absolute="false" x="14.0" y="6.0" />
+          </elements>
+      </Path>
+   </children>
+</StackPane>

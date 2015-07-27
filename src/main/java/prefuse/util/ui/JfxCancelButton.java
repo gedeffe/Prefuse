@@ -18,9 +18,9 @@ import javafx.scene.shape.Path;
  * Freely copied from https://gist.github.com/jewelsea/3383311
  */
 public class JfxCancelButton extends StackPane {
-	final double BUTTON_SIZE = 10;
-	final double UPPER_CORNER = 3;
-	final double LOWER_CORNER = 7;
+	final double BUTTON_SIZE = 20;
+	final double UPPER_CORNER = 6;
+	final double LOWER_CORNER = 14;
 
 	public JfxCancelButton(final EventHandler<ActionEvent> actionHandler) {
 		super();

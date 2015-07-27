@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root alignment="BOTTOM_RIGHT" styleClass="searchpanel" stylesheets="@searchpanel.css" type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label fx:id="resultLabel" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="100.0" textAlignment="RIGHT">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Label>
+      <Label text="search &gt;&gt; ">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Label>
+      <HBox alignment="CENTER">
+         <children>
+            <TextField fx:id="queryTextField" maxHeight="100.0" maxWidth="400.0" onKeyTyped="#updateSearchEngine" prefHeight="20.0" prefWidth="200.0">
+               <font>
+                  <Font size="11.0" />
+               </font>
+            </TextField>
+            <StackPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="20.0" prefWidth="20.0" styleClass="cancelbutton" stylesheets="@cancelbutton.css">
+               <children>
+                  <Button focusTraversable="false" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" onAction="#performCancel" />
+                  <Path mouseTransparent="true" styleClass="cancelicon">
+                      <elements>
+                        <MoveTo x="6.0" y="6.0" />
+                        <LineTo x="14.0" y="14.0" />
+                        <MoveTo x="6.0" y="14.0" />
+                        <LineTo x="14.0" y="6.0" />
+                      </elements>
+                  </Path>
+               </children>
+            </StackPane>
+         </children>
+         <opaqueInsets>
+            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+         </opaqueInsets>
+         <padding>
+            <Insets top="3.0" />
+         </padding>
+      </HBox>
+   </children>
+</fx:root>
