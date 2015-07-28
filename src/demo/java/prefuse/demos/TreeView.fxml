@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.embed.swing.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane stylesheets="@treeview.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prefuse.demos.TreeViewControl">
+   <center>
+      <SwingNode fx:id="swingNode" BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <HBox fx:id="bottomBox" prefHeight="20.0" prefWidth="800.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="titleLabel" />
+            <Region prefHeight="20.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets top="3.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>
