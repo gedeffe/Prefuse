@@ -10,8 +10,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -24,11 +22,12 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JTextArea;
 import javax.swing.JToolTip;
-import javax.swing.KeyStroke;
 
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -298,35 +297,33 @@ public class Display extends Canvas {
 	 */
 	protected void registerDefaultCommands() {
 		// add debugging output control
-		registerKeyboardAction(new ActionListener() {
+		this.setOnKeyTyped(new EventHandler<KeyEvent>() {
 			private PaintListener m_debug = null;
 
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (this.m_debug == null) {
-					this.m_debug = new DebugStatsPainter();
-					Display.this.addPaintListener(this.m_debug);
-				} else {
-					Display.this.removePaintListener(this.m_debug);
-					this.m_debug = null;
+			public void handle(final KeyEvent keyEvent) {
+				if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.D)) {
+					if (this.m_debug == null) {
+						this.m_debug = new DebugStatsPainter();
+						Display.this.addPaintListener(this.m_debug);
+					} else {
+						Display.this.removePaintListener(this.m_debug);
+						this.m_debug = null;
+					}
 				}
-				repaint();
 			}
-		}, "debug info", KeyStroke.getKeyStroke("ctrl D"), WHEN_FOCUSED);
+		});
 
 		// add quality toggle
-		registerKeyboardAction(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
+		this.setOnKeyTyped((keyEvent) -> {
+			if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.D)) {
 				Display.this.setHighQuality(!Display.this.isHighQuality());
-				repaint();
 			}
-		}, "toggle high-quality drawing", KeyStroke.getKeyStroke("ctrl H"), WHEN_FOCUSED);
+		});
 
 		// add image output control, if this is not an applet
 		try {
-			registerKeyboardAction(new ExportDisplayAction(this), "export display", KeyStroke.getKeyStroke("ctrl E"),
-					WHEN_FOCUSED);
+			this.setOnKeyTyped(new ExportDisplayAction(this));
 		} catch (final SecurityException se) {
 		}
 	}
