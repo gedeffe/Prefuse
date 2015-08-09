@@ -20,7 +20,8 @@ import prefuse.util.io.IOLib;
 
 /**
  * Replace this export dialog with a new one, yet without preview of image
- * content ...
+ * content ... In fact, we should extract the notion of event handler to support
+ * it directly on callee, and keep only the action/execution here.
  *
  * Swing ActionListener that reveals a dialog box that allows users to export
  * the current Display view to an image file.

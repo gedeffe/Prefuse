@@ -1,36 +1,35 @@
 package prefuse;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.swing.JTextArea;
 import javax.swing.JToolTip;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.NonInvertibleTransformException;
+import javafx.scene.transform.Transform;
 import prefuse.activity.Activity;
 import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.Control;
@@ -39,7 +38,6 @@ import prefuse.data.expression.BooleanLiteral;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.render.Renderer;
-import prefuse.util.ColorLib;
 import prefuse.util.StringLib;
 import prefuse.util.UpdateListener;
 import prefuse.util.collections.CopyOnWriteArrayList;
@@ -124,7 +122,7 @@ public class Display extends Canvas {
 	protected Clip m_clip = new Clip();
 	protected Clip m_screen = new Clip();
 	protected Clip m_bounds = new Clip();
-	protected Rectangle2D m_rclip = new Rectangle2D.Double();
+	protected Bounds m_rclip = new BoundingBox(0, 0, 0, 0);
 	protected boolean m_damageRedraw = true;
 	protected boolean m_highQuality = false;
 
@@ -136,10 +134,9 @@ public class Display extends Canvas {
 	protected int m_visibleCount = 0;
 
 	// transform variables
-	protected AffineTransform m_transform = new AffineTransform();
-	protected AffineTransform m_itransform = new AffineTransform();
+	protected Affine m_transform = new Affine();
+	protected Affine m_itransform = new Affine();
 	protected TransformActivity m_transact = new TransformActivity();
-	protected Point2D m_tmpPoint = new Point2D.Double();
 
 	// frame count and debugging output
 	protected double frameRate;
@@ -151,7 +148,7 @@ public class Display extends Canvas {
 	protected Tooltip m_customToolTip = null;
 
 	// text editing variables
-	private TextField m_editor;
+	private TextInputControl m_editor;
 	private boolean m_editing;
 	private VisualItem m_editItem;
 	private String m_editAttribute;
@@ -337,10 +334,8 @@ public class Display extends Canvas {
 	 *            the height of the Display in pixels
 	 * @see java.awt.Component#setSize(int, int)
 	 */
-	public void setSize(final int width, final int height) {
-		this.m_offscreen = null;
-		setPrefSize(width, height);
-		super.setSize(width, height);
+	public void setSize(final double width, final double height) {
+		super.resize(width, height);
 	}
 
 	/**
@@ -351,9 +346,7 @@ public class Display extends Canvas {
 	 * @see java.awt.Component#setSize(java.awt.Dimension)
 	 */
 	public void setSize(final Dimension d) {
-		this.m_offscreen = null;
-		setPreferredSize(d);
-		super.setSize(d);
+		super.resize(d.getWidth(), d.getHeight());
 	}
 
 	/**
@@ -364,15 +357,6 @@ public class Display extends Canvas {
 	 */
 	public void invalidate() {
 		this.damageReport();
-		super.invalidate();
-	}
-
-	/**
-	 * @see java.awt.Component#setBounds(int, int, int, int)
-	 */
-	public void setBounds(final int x, final int y, final int w, final int h) {
-		this.m_offscreen = null;
-		super.setBounds(x, y, w, h);
 	}
 
 	/**
@@ -382,8 +366,7 @@ public class Display extends Canvas {
 	 * @param f
 	 *            the Font to use
 	 */
-	public void setFont(final Font f) {
-		super.setFont(f);
+	public void setFont(final javafx.scene.text.Font f) {
 		this.m_editor.setFont(f);
 	}
 
@@ -604,7 +587,7 @@ public class Display extends Canvas {
 	 */
 	public Tooltip createToolTip() {
 		if (this.m_customToolTip == null) {
-			return super.createToolTip();
+			return new Tooltip();
 		} else {
 			return this.m_customToolTip;
 		}
@@ -697,7 +680,7 @@ public class Display extends Canvas {
 	 * @param region
 	 *            the damaged region, in absolute coordinates
 	 */
-	public synchronized void damageReport(final Rectangle2D region) {
+	public synchronized void damageReport(final Bounds region) {
 		if (this.m_damageRedraw) {
 			this.m_clip.union(region);
 		}
@@ -727,56 +710,19 @@ public class Display extends Canvas {
 	 * bounds occupied by all currently visible VisualItems. This method
 	 * allocates a new Rectangle2D instance for the result.
 	 *
-	 * @return the bounding box of all visibile VisualItems
-	 * @see #getItemBounds(Rectangle2D)
+	 * @return the bounding box of all visible VisualItems
+	 * @deprecated should be replaced by a direct call to getBoundsInLocal() or
+	 *             to getBoundsInParent().
 	 */
-	public synchronized Rectangle2D getItemBounds() {
-		return this.getItemBounds(new Rectangle2D.Double());
-	}
-
-	/**
-	 * Returns the bounds, in absolute (item-space) coordinates, of the total
-	 * bounds occupied by all currently visible VisualItems.
-	 *
-	 * @param b
-	 *            the Rectangle2D to use to store the return value
-	 * @return the bounding box of all visibile VisualItems
-	 */
-	public synchronized Rectangle2D getItemBounds(final Rectangle2D b) {
-		b.setFrameFromDiagonal(this.m_bounds.getMinX(), this.m_bounds.getMinY(), this.m_bounds.getMaxX(),
+	@Deprecated
+	public synchronized Bounds getItemBounds() {
+		final Bounds result = new BoundingBox(this.m_bounds.getMinX(), this.m_bounds.getMinY(), this.m_bounds.getMaxX(),
 				this.m_bounds.getMaxY());
-		return b;
+		return result;
 	}
 
 	// ------------------------------------------------------------------------
 	// Rendering
-
-	/**
-	 * Returns the offscreen buffer used for double buffering.
-	 *
-	 * @return the offscreen buffer
-	 */
-	public BufferedImage getOffscreenBuffer() {
-		return this.m_offscreen;
-	}
-
-	/**
-	 * Creates a new buffered image to use as an offscreen buffer.
-	 */
-	protected BufferedImage getNewOffscreenBuffer(final int width, final int height) {
-		BufferedImage img = null;
-		if (!GraphicsEnvironment.isHeadless()) {
-			try {
-				img = (BufferedImage) createImage(width, height);
-			} catch (final Exception e) {
-				img = null;
-			}
-		}
-		if (img == null) {
-			return new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		}
-		return img;
-	}
 
 	/**
 	 * Saves a copy of this display as an image to the specified output stream.
@@ -795,22 +741,16 @@ public class Display extends Canvas {
 	 */
 	public boolean saveImage(final OutputStream output, final String format, final double scale) {
 		try {
+			// set up the scale transformation (if needed)
+			final SnapshotParameters snapshotParameters = new SnapshotParameters();
+			if (scale != 1) {
+				final Transform transform = Transform.scale(scale, scale);
+				snapshotParameters.setTransform(transform);
+			}
 			// get an image to draw into
-			final Dimension d = new Dimension((int) (scale * this.getWidth()), (int) (scale * this.getHeight()));
-			final BufferedImage img = this.getNewOffscreenBuffer(d.width, d.height);
-			final Graphics2D g = (Graphics2D) img.getGraphics();
-
-			// set up the display, render, then revert to normal settings
-			final Point2D p = new Point2D.Double(0, 0);
-			this.zoom(p, scale); // also takes care of damage report
-			final boolean q = this.isHighQuality();
-			this.setHighQuality(true);
-			this.paintDisplay(g, d);
-			this.setHighQuality(q);
-			this.zoom(p, 1 / scale); // also takes care of damage report
-
+			final WritableImage writableImage = this.snapshot(snapshotParameters, null);
 			// save the image and return
-			ImageIO.write(img, format, output);
+			ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), format, output);
 			return true;
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -819,47 +759,17 @@ public class Display extends Canvas {
 	}
 
 	/**
-	 * @see java.awt.Component#update(java.awt.Graphics)
-	 */
-	public void update(final Graphics g) {
-		paint(g);
-	}
-
-	/**
-	 * Paints the offscreen buffer to the provided graphics context.
-	 *
-	 * @param g
-	 *            the Graphics context to paint to
-	 */
-	protected void paintBufferToScreen(final Graphics g) {
-		synchronized (this) {
-			g.drawImage(this.m_offscreen, 0, 0, null);
-		}
-	}
-
-	/**
-	 * Immediately repaints the contents of the offscreen buffer to the screen.
-	 * This bypasses the usual rendering loop.
-	 */
-	public void repaintImmediate() {
-		final Graphics g = this.getGraphics();
-		if ((g != null) && (this.m_offscreen != null)) {
-			this.paintBufferToScreen(g);
-		}
-	}
-
-	/**
 	 * Sets the transform of the provided Graphics context to be the transform
 	 * of this Display and sets the desired rendering hints.
 	 *
-	 * @param g
+	 * @param g2d
 	 *            the Graphics context to prepare.
 	 */
-	protected void prepareGraphics(final Graphics2D g) {
+	protected void prepareGraphics(final GraphicsContext g2d) {
 		if (this.m_transform != null) {
-			g.transform(this.m_transform);
+			g2d.transform(this.m_transform);
 		}
-		this.setRenderingHints(g);
+		this.setRenderingHints(g2d);
 	}
 
 	/**
@@ -868,41 +778,36 @@ public class Display extends Canvas {
 	 * hints as desired. Such subclasses should consider honoring the high
 	 * quality flag in one form or another.
 	 *
-	 * @param g
+	 * @param g2d
 	 *            the Graphics context on which to set the rendering hints
 	 */
-	protected void setRenderingHints(final Graphics2D g) {
+	protected void setRenderingHints(final GraphicsContext g2d) {
 		if (this.m_highQuality) {
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+			// RenderingHints.VALUE_ANTIALIAS_ON);
 		} else {
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+			// RenderingHints.VALUE_ANTIALIAS_OFF);
 		}
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		// g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+		// RenderingHints.VALUE_RENDER_QUALITY);
+		// g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+		// RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	}
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
-	public void paintComponent(final Graphics g) {
-		if (this.m_offscreen == null) {
-			this.m_offscreen = this.getNewOffscreenBuffer(this.getWidth(), this.getHeight());
-			this.damageReport();
-		}
-		final Graphics2D g2D = (Graphics2D) g;
-		final Graphics2D buf_g2D = (Graphics2D) this.m_offscreen.getGraphics();
+	public void paintComponent(final GraphicsContext g) {
 
 		// Why not fire a pre-paint event here?
 		// Pre-paint events are fired by the clearRegion method
 
 		// paint the visualization
-		this.paintDisplay(buf_g2D, getSize());
-		this.paintBufferToScreen(g2D);
+		this.paintDisplay(g, this.getBoundsInLocal());
 
 		// fire post-paint events to any painters
-		this.firePostPaint(g2D);
-
-		buf_g2D.dispose();
+		this.firePostPaint(g);
 
 		// compute frame rate
 		this.nframes++;
@@ -922,10 +827,10 @@ public class Display extends Canvas {
 	 *
 	 * @param g2D
 	 *            the <code>Graphics2D</code> context to use for rendering
-	 * @param d
+	 * @param boundsInLocal
 	 *            the rendering width and height of the Display
 	 */
-	public void paintDisplay(final Graphics2D g2D, final Dimension d) {
+	public void paintDisplay(final GraphicsContext g2D, final Bounds boundsInLocal) {
 		// if double-locking *ALWAYS* lock on the visualization first
 		synchronized (this.m_vis) {
 			synchronized (this) {
@@ -935,7 +840,7 @@ public class Display extends Canvas {
 				}
 
 				// map the screen bounds to absolute coords
-				this.m_screen.setClip(0, 0, d.width + 1, d.height + 1);
+				this.m_screen.setClip(0, 0, boundsInLocal.getWidth() + 1, boundsInLocal.getHeight() + 1);
 				this.m_screen.transform(this.m_itransform);
 
 				// compute the approximate size of an "absolute pixel"
@@ -960,9 +865,9 @@ public class Display extends Canvas {
 					this.prepareGraphics(g2D);
 
 					// now set the actual rendering clip
-					this.m_rclip.setFrameFromDiagonal(this.m_clip.getMinX(), this.m_clip.getMinY(),
-							this.m_clip.getMaxX(), this.m_clip.getMaxY());
-					g2D.setClip(this.m_rclip);
+					// this.m_rclip = new Rectangle2D(this.m_clip.getMinX(),
+					// this.m_clip.getMinY(), this.m_clip.getMaxX(),
+					// this.m_clip.getMaxY());
 
 					// finally, we want to clear the region we'll redraw. we
 					// clear
@@ -970,13 +875,13 @@ public class Display extends Canvas {
 					// this,
 					// we sometimes get rendering artifacts, possibly due to
 					// scaling mismatches in the Java2D implementation
-					this.m_rclip.setFrameFromDiagonal(this.m_clip.getMinX() - pixel, this.m_clip.getMinY() - pixel,
+					this.m_rclip = new BoundingBox(this.m_clip.getMinX() - pixel, this.m_clip.getMinY() - pixel,
 							this.m_clip.getMaxX() + pixel, this.m_clip.getMaxY() + pixel);
 
 				} else {
 					// set the background region to clear
-					this.m_rclip.setFrame(this.m_screen.getMinX(), this.m_screen.getMinY(), this.m_screen.getWidth(),
-							this.m_screen.getHeight());
+					this.m_rclip = new BoundingBox(this.m_screen.getMinX(), this.m_screen.getMinY(),
+							this.m_screen.getWidth(), this.m_screen.getHeight());
 
 					// set the item clip to the current screen
 					this.m_clip.setClip(this.m_screen);
@@ -992,7 +897,7 @@ public class Display extends Canvas {
 				// the actual rendering loop
 
 				// copy current item bounds into m_rclip, reset item bounds
-				this.getItemBounds(this.m_rclip);
+				this.m_rclip = this.getItemBounds();
 				this.m_bounds.reset();
 
 				// fill the rendering and picking queues
@@ -1000,7 +905,7 @@ public class Display extends Canvas {
 				final Iterator items = this.m_vis.items(this.m_predicate);
 				for (this.m_visibleCount = 0; items.hasNext(); ++this.m_visibleCount) {
 					final VisualItem item = (VisualItem) items.next();
-					final Rectangle2D bounds = item.getBounds();
+					final Bounds bounds = item.getBounds();
 					this.m_bounds.union(bounds); // add to item bounds
 
 					if (this.m_clip.intersects(bounds, pixel)) {
@@ -1039,7 +944,7 @@ public class Display extends Canvas {
 	 *            the VisualItem to render immediately
 	 */
 	public void renderImmediate(final VisualItem item) {
-		final Graphics2D g2D = (Graphics2D) this.getGraphics();
+		final GraphicsContext g2D = this.getGraphicsContext2D();
 		this.prepareGraphics(g2D);
 		item.render(g2D);
 	}
@@ -1055,13 +960,13 @@ public class Display extends Canvas {
 	 * @param g
 	 *            the printer graphics context.
 	 */
-	protected void printComponent(final Graphics g) {
+	protected void printComponent(final GraphicsContext g) {
 		final boolean wasHighQuality = this.m_highQuality;
 		try {
 			// Set the quality to high for the duration of the printing.
 			this.m_highQuality = true;
 			// Paint directly to the print graphics context.
-			this.paintDisplay((Graphics2D) g, getSize());
+			this.paintDisplay(g, this.getBoundsInLocal());
 		} finally {
 			// Reset the quality to the state it was in before printing.
 			this.m_highQuality = wasHighQuality;
@@ -1072,9 +977,9 @@ public class Display extends Canvas {
 	 * Clears the specified region of the display in the display's offscreen
 	 * buffer.
 	 */
-	protected void clearRegion(final Graphics2D g, final Rectangle2D r) {
-		g.setColor(getBackground());
-		g.fill(r);
+	protected void clearRegion(final GraphicsContext g, final Bounds r) {
+		// g.setColor(getBackground());
+		g.fillRect(r.getMinX(), r.getMinY(), r.getWidth(), r.getHeight());
 		// fire pre-paint events to any painters
 		this.firePrePaint(g);
 	}
@@ -1088,8 +993,10 @@ public class Display extends Canvas {
 	 * invertible, otherwise an expection will be thrown. For simple panning and
 	 * zooming transforms, you can instead use the provided pan() and zoom()
 	 * methods.
+	 *
+	 * @throws NonInvertibleTransformException
 	 */
-	public synchronized void setTransform(final AffineTransform transform) throws NoninvertibleTransformException {
+	public synchronized void setTransform(final Affine transform) throws NonInvertibleTransformException {
 		this.damageReport();
 		this.m_transform = transform;
 		this.m_itransform = this.m_transform.createInverse();
@@ -1102,7 +1009,7 @@ public class Display extends Canvas {
 	 *
 	 * @return the AffineTransform
 	 */
-	public AffineTransform getTransform() {
+	public Affine getTransform() {
 		return this.m_transform;
 	}
 
@@ -1113,25 +1020,20 @@ public class Display extends Canvas {
 	 *
 	 * @return the inverse AffineTransform
 	 */
-	public AffineTransform getInverseTransform() {
+	public Affine getInverseTransform() {
 		return this.m_itransform;
 	}
 
 	/**
 	 * Gets the absolute co-ordinate corresponding to the given screen
-	 * co-ordinate.
+	 * co-ordinate. A new Point2D instance will be created and returned.
 	 *
 	 * @param screen
 	 *            the screen co-ordinate to transform
-	 * @param abs
-	 *            a reference to put the result in. If this is the same object
-	 *            as the screen co-ordinate, it will be overridden safely. If
-	 *            this value is null, a new Point2D instance will be created and
-	 *            returned.
 	 * @return the point in absolute co-ordinates
 	 */
-	public Point2D getAbsoluteCoordinate(final Point2D screen, final Point2D abs) {
-		return this.m_itransform.transform(screen, abs);
+	public Point2D getAbsoluteCoordinate(final Point2D screen) {
+		return this.m_itransform.transform(screen);
 	}
 
 	/**
@@ -1142,7 +1044,7 @@ public class Display extends Canvas {
 	 *         non-uniform scaling cases.
 	 */
 	public double getScale() {
-		return this.m_transform.getScaleX();
+		return this.m_transform.getMxx();
 	}
 
 	/**
@@ -1152,7 +1054,7 @@ public class Display extends Canvas {
 	 * @return the x co-ord of the top-left corner, in absolute coordinates
 	 */
 	public double getDisplayX() {
-		return -this.m_transform.getTranslateX();
+		return -this.m_transform.getTx();
 	}
 
 	/**
@@ -1162,7 +1064,7 @@ public class Display extends Canvas {
 	 * @return the y co-ord of the top-left corner, in absolute coordinates
 	 */
 	public double getDisplayY() {
-		return -this.m_transform.getTranslateY();
+		return -this.m_transform.getTy();
 	}
 
 	/**
@@ -1174,14 +1076,12 @@ public class Display extends Canvas {
 	 *            the amount to pan along the y-dimension, in pixel units
 	 */
 	public synchronized void pan(final double dx, final double dy) {
-		this.m_tmpPoint.setLocation(dx, dy);
-		this.m_itransform.transform(this.m_tmpPoint, this.m_tmpPoint);
-		double panx = this.m_tmpPoint.getX();
-		double pany = this.m_tmpPoint.getY();
-		this.m_tmpPoint.setLocation(0, 0);
-		this.m_itransform.transform(this.m_tmpPoint, this.m_tmpPoint);
-		panx -= this.m_tmpPoint.getX();
-		pany -= this.m_tmpPoint.getY();
+		Point2D refPoint = this.m_itransform.transform(Point2D.ZERO);
+		double panx = refPoint.getX();
+		double pany = refPoint.getY();
+		refPoint = this.m_itransform.transform(Point2D.ZERO);
+		panx -= refPoint.getX();
+		pany -= refPoint.getY();
 		this.panAbs(panx, pany);
 
 	}
@@ -1197,7 +1097,7 @@ public class Display extends Canvas {
 	 */
 	public synchronized void panAbs(final double dx, final double dy) {
 		this.damageReport();
-		this.m_transform.translate(dx, dy);
+		this.m_transform.appendTranslation(dx, dy);
 		try {
 			this.m_itransform = this.m_transform.createInverse();
 		} catch (final Exception e) {
@@ -1212,8 +1112,8 @@ public class Display extends Canvas {
 	 *            the point to center on, in screen co-ords
 	 */
 	public synchronized void panTo(final Point2D p) {
-		this.m_itransform.transform(p, this.m_tmpPoint);
-		this.panToAbs(this.m_tmpPoint);
+		final Point2D pointToCenterOn = this.m_itransform.transform(p);
+		this.panToAbs(pointToCenterOn);
 	}
 
 	/**
@@ -1224,8 +1124,8 @@ public class Display extends Canvas {
 	 *            the point to center on, in absolute co-ords
 	 */
 	public synchronized void panToAbs(final Point2D p) {
-		final double sx = this.m_transform.getScaleX();
-		final double sy = this.m_transform.getScaleY();
+		final double sx = this.m_transform.getMxx();
+		final double sy = this.m_transform.getMyy();
 		double x = p.getX();
 		x = (Double.isNaN(x) ? 0 : x);
 		double y = p.getY();
@@ -1233,11 +1133,11 @@ public class Display extends Canvas {
 		x = (this.getWidth() / (2 * sx)) - x;
 		y = (this.getHeight() / (2 * sy)) - y;
 
-		final double dx = x - (this.m_transform.getTranslateX() / sx);
-		final double dy = y - (this.m_transform.getTranslateY() / sy);
+		final double dx = x - (this.m_transform.getTx() / sx);
+		final double dy = y - (this.m_transform.getTy() / sy);
 
 		this.damageReport();
-		this.m_transform.translate(dx, dy);
+		this.m_transform.appendTranslation(dx, dy);
 		try {
 			this.m_itransform = this.m_transform.createInverse();
 		} catch (final Exception e) {
@@ -1254,8 +1154,8 @@ public class Display extends Canvas {
 	 *            the amount to zoom by
 	 */
 	public synchronized void zoom(final Point2D p, final double scale) {
-		this.m_itransform.transform(p, this.m_tmpPoint);
-		this.zoomAbs(this.m_tmpPoint, scale);
+		final Point2D anchorPoint = this.m_itransform.transform(p);
+		this.zoomAbs(anchorPoint, scale);
 	}
 
 	/**
@@ -1269,12 +1169,11 @@ public class Display extends Canvas {
 	 *            the amount to zoom by
 	 */
 	public synchronized void zoomAbs(final Point2D p, final double scale) {
-		;
 		final double zx = p.getX(), zy = p.getY();
 		this.damageReport();
-		this.m_transform.translate(zx, zy);
-		this.m_transform.scale(scale, scale);
-		this.m_transform.translate(-zx, -zy);
+		this.m_transform.appendTranslation(zx, zy);
+		this.m_transform.appendScale(scale, scale);
+		this.m_transform.appendTranslation(-zx, -zy);
 		try {
 			this.m_itransform = this.m_transform.createInverse();
 		} catch (final Exception e) {
@@ -1291,8 +1190,8 @@ public class Display extends Canvas {
 	 *            the angle to rotate by, in radians
 	 */
 	public synchronized void rotate(final Point2D p, final double theta) {
-		this.m_itransform.transform(p, this.m_tmpPoint);
-		this.rotateAbs(this.m_tmpPoint, theta);
+		final Point2D anchorPoint = this.m_itransform.transform(p);
+		this.rotateAbs(anchorPoint, theta);
 	}
 
 	/**
@@ -1308,9 +1207,9 @@ public class Display extends Canvas {
 	public synchronized void rotateAbs(final Point2D p, final double theta) {
 		final double zx = p.getX(), zy = p.getY();
 		this.damageReport();
-		this.m_transform.translate(zx, zy);
-		this.m_transform.rotate(theta);
-		this.m_transform.translate(-zx, -zy);
+		this.m_transform.appendTranslation(zx, zy);
+		this.m_transform.appendRotation(theta);
+		this.m_transform.appendTranslation(-zx, -zy);
 		try {
 			this.m_itransform = this.m_transform.createInverse();
 		} catch (final Exception e) {
@@ -1329,8 +1228,8 @@ public class Display extends Canvas {
 	 *            the duration of the animation, in milliseconds
 	 */
 	public synchronized void animatePan(final double dx, final double dy, final long duration) {
-		final double panx = dx / this.m_transform.getScaleX();
-		final double pany = dy / this.m_transform.getScaleY();
+		final double panx = dx / this.m_transform.getMxx();
+		final double pany = dy / this.m_transform.getMyy();
 		this.animatePanAbs(panx, pany, duration);
 	}
 
@@ -1359,8 +1258,7 @@ public class Display extends Canvas {
 	 *            the duration of the animation, in milliseconds
 	 */
 	public synchronized void animatePanTo(final Point2D p, final long duration) {
-		final Point2D pp = new Point2D.Double();
-		this.m_itransform.transform(p, pp);
+		final Point2D pp = this.m_itransform.transform(p);
 		this.animatePanToAbs(pp, duration);
 	}
 
@@ -1374,16 +1272,15 @@ public class Display extends Canvas {
 	 *            the duration of the animation, in milliseconds
 	 */
 	public synchronized void animatePanToAbs(final Point2D p, final long duration) {
-		this.m_tmpPoint.setLocation(0, 0);
-		this.m_itransform.transform(this.m_tmpPoint, this.m_tmpPoint);
+		final Point2D refPoint = this.m_itransform.transform(Point2D.ZERO);
 		double x = p.getX();
 		x = (Double.isNaN(x) ? 0 : x);
 		double y = p.getY();
 		y = (Double.isNaN(y) ? 0 : y);
-		final double w = this.getWidth() / (2 * this.m_transform.getScaleX());
-		final double h = this.getHeight() / (2 * this.m_transform.getScaleY());
-		final double dx = (w - x) + this.m_tmpPoint.getX();
-		final double dy = (h - y) + this.m_tmpPoint.getY();
+		final double w = this.getWidth() / (2 * this.m_transform.getMxx());
+		final double h = this.getHeight() / (2 * this.m_transform.getMyy());
+		final double dx = (w - x) + refPoint.getX();
+		final double dy = (h - y) + refPoint.getY();
 		this.animatePanAbs(dx, dy, duration);
 	}
 
@@ -1399,8 +1296,7 @@ public class Display extends Canvas {
 	 *            the duration of the animation, in milliseconds
 	 */
 	public synchronized void animateZoom(final Point2D p, final double scale, final long duration) {
-		final Point2D pp = new Point2D.Double();
-		this.m_itransform.transform(p, pp);
+		final Point2D pp = this.m_itransform.transform(p);
 		this.animateZoomAbs(pp, scale, duration);
 	}
 
@@ -1431,8 +1327,7 @@ public class Display extends Canvas {
 	 *            the duration of the animation, in milliseconds
 	 */
 	public synchronized void animatePanAndZoomTo(final Point2D p, final double scale, final long duration) {
-		final Point2D pp = new Point2D.Double();
-		this.m_itransform.transform(p, pp);
+		final Point2D pp = this.m_itransform.transform(p);
 		this.animatePanAndZoomToAbs(pp, scale, duration);
 	}
 
@@ -1469,71 +1364,84 @@ public class Display extends Canvas {
 		// activities can be running at once?
 
 		private final double[] src, dst;
-		private final AffineTransform m_at;
+		private final Affine m_at;
 
 		public TransformActivity() {
 			super(2000, 20, 0);
 			this.src = new double[6];
 			this.dst = new double[6];
-			this.m_at = new AffineTransform();
+			this.m_at = new Affine();
 			this.setPacingFunction(new SlowInSlowOutPacer());
 		}
 
-		private AffineTransform getTransform() {
+		private Affine getTransform() {
 			if (this.isScheduled()) {
-				this.m_at.setTransform(this.dst[0], this.dst[1], this.dst[2], this.dst[3], this.dst[4], this.dst[5]);
+				this.m_at.setToTransform(this.dst[0], this.dst[1], this.dst[2], this.dst[3], this.dst[4], this.dst[5]);
 			} else {
-				this.m_at.setTransform(Display.this.m_transform);
+				this.m_at.setToTransform(Display.this.m_transform);
 			}
 			return this.m_at;
 		}
 
 		public void panAndZoom(final Point2D p, final double scale, final long duration) {
-			final AffineTransform at = this.getTransform();
+			final Affine at = this.getTransform();
 			this.cancel();
 			this.setDuration(duration);
 
-			Display.this.m_tmpPoint.setLocation(0, 0);
-			Display.this.m_itransform.transform(Display.this.m_tmpPoint, Display.this.m_tmpPoint);
+			final Point2D refPoint = Display.this.m_itransform.transform(Point2D.ZERO);
 			double x = p.getX();
 			x = (Double.isNaN(x) ? 0 : x);
 			double y = p.getY();
 			y = (Double.isNaN(y) ? 0 : y);
-			final double w = Display.this.getWidth() / (2 * Display.this.m_transform.getScaleX());
-			final double h = Display.this.getHeight() / (2 * Display.this.m_transform.getScaleY());
-			final double dx = (w - x) + Display.this.m_tmpPoint.getX();
-			final double dy = (h - y) + Display.this.m_tmpPoint.getY();
-			at.translate(dx, dy);
+			final double w = Display.this.getWidth() / (2 * Display.this.m_transform.getTx());
+			final double h = Display.this.getHeight() / (2 * Display.this.m_transform.getTy());
+			final double dx = (w - x) + refPoint.getX();
+			final double dy = (h - y) + refPoint.getY();
 
-			at.translate(p.getX(), p.getY());
-			at.scale(scale, scale);
-			at.translate(-p.getX(), -p.getY());
+			at.appendTranslation(dx, dy);
 
-			at.getMatrix(this.dst);
-			Display.this.m_transform.getMatrix(this.src);
+			at.appendTranslation(p.getX(), p.getY());
+			at.appendScale(scale, scale);
+			at.appendTranslation(-p.getX(), -p.getY());
+
+			this.populateMatrix(at, this.dst);
+			this.populateMatrix(Display.this.m_transform, this.src);
 			this.run();
 		}
 
+		private void populateMatrix(final Affine transformation, final double[] matrix) {
+			/*
+			 * We will suppose that our matrix parameter has always a size of 6
+			 * (see src and dst fields).
+			 */
+			matrix[0] = transformation.getMxx();
+			matrix[1] = transformation.getMxy();
+			matrix[2] = transformation.getTx();
+			matrix[3] = transformation.getMyx();
+			matrix[4] = transformation.getMyy();
+			matrix[5] = transformation.getTy();
+		}
+
 		public void pan(final double dx, final double dy, final long duration) {
-			final AffineTransform at = this.getTransform();
+			final Affine at = this.getTransform();
 			this.cancel();
 			this.setDuration(duration);
-			at.translate(dx, dy);
-			at.getMatrix(this.dst);
-			Display.this.m_transform.getMatrix(this.src);
+			at.appendTranslation(dx, dy);
+			this.populateMatrix(at, this.dst);
+			this.populateMatrix(Display.this.m_transform, this.src);
 			this.run();
 		}
 
 		public void zoom(final Point2D p, final double scale, final long duration) {
-			final AffineTransform at = this.getTransform();
+			final Affine at = this.getTransform();
 			this.cancel();
 			this.setDuration(duration);
 			final double zx = p.getX(), zy = p.getY();
-			at.translate(zx, zy);
-			at.scale(scale, scale);
-			at.translate(-zx, -zy);
-			at.getMatrix(this.dst);
-			Display.this.m_transform.getMatrix(this.src);
+			at.appendTranslation(zx, zy);
+			at.appendScale(scale, scale);
+			at.appendTranslation(-zx, -zy);
+			this.populateMatrix(at, this.dst);
+			this.populateMatrix(Display.this.m_transform, this.src);
 			this.run();
 		}
 
@@ -1541,7 +1449,7 @@ public class Display extends Canvas {
 		protected void run(final long elapsedTime) {
 			final double f = this.getPace(elapsedTime);
 			Display.this.damageReport();
-			Display.this.m_transform.setTransform(this.src[0] + (f * (this.dst[0] - this.src[0])),
+			Display.this.m_transform.setToTransform(this.src[0] + (f * (this.dst[0] - this.src[0])),
 					this.src[1] + (f * (this.dst[1] - this.src[1])), this.src[2] + (f * (this.dst[2] - this.src[2])),
 					this.src[3] + (f * (this.dst[3] - this.src[3])), this.src[4] + (f * (this.dst[4] - this.src[4])),
 					this.src[5] + (f * (this.dst[5] - this.src[5])));
@@ -1549,7 +1457,6 @@ public class Display extends Canvas {
 				Display.this.m_itransform = Display.this.m_transform.createInverse();
 			} catch (final Exception e) {
 				/* won't happen */ }
-			repaint();
 		}
 	} // end of inner class TransformActivity
 
@@ -1586,7 +1493,7 @@ public class Display extends Canvas {
 	 * @param g
 	 *            the current graphics context
 	 */
-	protected void firePrePaint(final Graphics2D g) {
+	protected void firePrePaint(final GraphicsContext g) {
 		if ((this.m_painters != null) && (this.m_painters.size() > 0)) {
 			final Object[] lstnrs = this.m_painters.getArray();
 			for (int i = 0; i < lstnrs.length; ++i) {
@@ -1605,7 +1512,7 @@ public class Display extends Canvas {
 	 * @param g
 	 *            the current graphics context
 	 */
-	protected void firePostPaint(final Graphics2D g) {
+	protected void firePostPaint(final GraphicsContext g) {
 		if ((this.m_painters != null) && (this.m_painters.size() > 0)) {
 			final Object[] lstnrs = this.m_painters.getArray();
 			for (int i = 0; i < lstnrs.length; ++i) {
@@ -1652,7 +1559,7 @@ public class Display extends Canvas {
 	 * @param prev
 	 *            the previous item bounds of the Display
 	 */
-	protected void checkItemBoundsChanged(final Rectangle2D prev) {
+	protected void checkItemBoundsChanged(final Bounds prev) {
 		if (this.m_bounds.equals(prev)) {
 			return; // nothing to do
 		}
@@ -1696,13 +1603,16 @@ public class Display extends Canvas {
 	/**
 	 * Returns the VisualItem located at the given point.
 	 *
+	 * We might use directly coordinates provided by MouseEvent that could be
+	 * relative to current Node.
+	 *
 	 * @param p
 	 *            the Point at which to look
 	 * @return the VisualItem located at the given point, if any
 	 */
-	public synchronized VisualItem findItem(final Point p) {
+	public synchronized VisualItem findItem(final Point2D p) {
 		// transform mouse point from screen space to item space
-		final Point2D p2 = (this.m_itransform == null ? p : this.m_itransform.transform(p, this.m_tmpPoint));
+		final Point2D p2 = (this.m_itransform == null ? p : this.m_itransform.transform(p));
 		// ensure that the picking queue has been z-sorted
 		if (!this.m_queue.psorted) {
 			this.m_queue.sortPickingQueue();
@@ -1753,7 +1663,7 @@ public class Display extends Canvas {
 			synchronized (Display.this.m_vis) {
 				boolean earlyReturn = false;
 				// check if we've gone over any item
-				final VisualItem vi = Display.this.findItem(e.getPoint());
+				final VisualItem vi = Display.this.findItem(new Point2D(e.getScreenX(), e.getScreenY()));
 				if ((this.activeItem != null) && (this.activeItem != vi)) {
 					if (this.validityCheck()) {
 						this.fireItemExited(this.activeItem, e);
@@ -2221,7 +2131,7 @@ public class Display extends Canvas {
 	 *
 	 * @return the TextComponent used for text editing
 	 */
-	public TextField getTextEditor() {
+	public TextInputControl getTextEditor() {
 		return this.m_editor;
 	}
 
@@ -2231,10 +2141,8 @@ public class Display extends Canvas {
 	 * @param tc
 	 *            the TextComponent to use for text editing
 	 */
-	public void setTextEditor(final TextField tc) {
-		this.remove(this.m_editor);
+	public void setTextEditor(final TextInputControl tc) {
 		this.m_editor = tc;
-		this.add(this.m_editor, 1);
 	}
 
 	/**
@@ -2252,28 +2160,25 @@ public class Display extends Canvas {
 		if (this.m_editing) {
 			this.stopEditing();
 		}
-		final Rectangle2D b = item.getBounds();
-		final Rectangle r = this.m_transform.createTransformedShape(b).getBounds();
+		final Bounds bounds = item.getBounds();
+		final Bounds transformedBounds = this.m_transform.transform(bounds);
 
+		final Rectangle rectangle = new Rectangle();
 		// hacky placement code that attempts to keep text in same place
 		// configured under Windows XP and Java 1.4.2b
-		if (this.m_editor instanceof JTextArea) {
-			r.y -= 2;
-			r.width += 22;
-			r.height += 2;
+		if (this.m_editor instanceof TextArea) {
+			rectangle.setX(transformedBounds.getMinX());
+			rectangle.setY(transformedBounds.getMinY() - 2);
+			rectangle.setWidth(transformedBounds.getWidth() + 22);
+			rectangle.setHeight(transformedBounds.getHeight() + 2);
 		} else {
-			r.x += 3;
-			r.y += 1;
-			r.width -= 5;
-			r.height -= 2;
+			rectangle.setX(transformedBounds.getMinX() + 3);
+			rectangle.setY(transformedBounds.getMinY() + 1);
+			rectangle.setWidth(transformedBounds.getWidth() - 5);
+			rectangle.setHeight(transformedBounds.getHeight() - 2);
 		}
 
-		final Font f = getFont();
-		final int size = (int) Math.round(f.getSize() * this.m_transform.getScaleX());
-		final Font nf = new Font(f.getFontName(), f.getStyle(), size);
-		this.m_editor.setFont(nf);
-
-		this.editText(item, attribute, r);
+		this.editText(item, attribute, rectangle);
 	}
 
 	/**
@@ -2286,22 +2191,18 @@ public class Display extends Canvas {
 	 *            the VisualItem to edit
 	 * @param attribute
 	 *            the attribute to edit
-	 * @param r
+	 * @param bounds
 	 *            Rectangle representing the desired bounding box of the text
 	 *            editing widget
 	 */
-	public void editText(final VisualItem item, final String attribute, final Rectangle r) {
+	public void editText(final VisualItem item, final String attribute, final Rectangle bounds) {
 		if (this.m_editing) {
 			this.stopEditing();
 		}
 		final String txt = item.getString(attribute);
 		this.m_editItem = item;
 		this.m_editAttribute = attribute;
-		final Color tc = ColorLib.getColor(item.getTextColor());
-		final Color fc = ColorLib.getColor(item.getFillColor());
-		this.m_editor.setForeground(tc);
-		this.m_editor.setBackground(fc);
-		this.editText(txt, r);
+		this.editText(txt, bounds);
 	}
 
 	/**
@@ -2312,19 +2213,20 @@ public class Display extends Canvas {
 	 *
 	 * @param txt
 	 *            the text string to display in the text widget
-	 * @param r
+	 * @param bounds
 	 *            Rectangle representing the desired bounding box of the text
 	 *            editing widget
 	 */
-	public void editText(final String txt, final Rectangle r) {
+	public void editText(final String txt, final Rectangle bounds) {
 		if (this.m_editing) {
 			this.stopEditing();
 		}
 		this.m_editing = true;
-		this.m_editor.setBounds(r.x, r.y, r.width, r.height);
+		this.m_editor.setClip(bounds);
 		this.m_editor.setText(txt);
 		this.m_editor.setVisible(true);
-		this.m_editor.setCaretPosition(txt.length());
+		// position the caret at the end of provided text
+		this.m_editor.end();
 		this.m_editor.requestFocus();
 	}
 
@@ -2342,7 +2244,6 @@ public class Display extends Canvas {
 			this.m_editItem = null;
 			this.m_editAttribute = null;
 			this.m_editor.setBackground(null);
-			this.m_editor.setForeground(null);
 		}
 		this.m_editing = false;
 	}

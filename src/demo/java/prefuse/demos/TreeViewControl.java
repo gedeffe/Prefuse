@@ -1,12 +1,11 @@
 package prefuse.demos;
 
-import java.awt.Color;
 import java.awt.event.MouseEvent;
 
 import javafx.application.Platform;
-import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import prefuse.Visualization;
 import prefuse.controls.ControlAdapter;
@@ -17,13 +16,10 @@ import prefuse.visual.VisualItem;
 
 public class TreeViewControl {
 
-	private static final Color BACKGROUND = Color.WHITE;
-	private static final Color FOREGROUND = Color.BLACK;
-
 	@FXML
 	Label titleLabel;
 	@FXML
-	SwingNode swingNode;
+	BorderPane mainBorderPane;
 	@FXML
 	HBox bottomBox;
 
@@ -31,7 +27,7 @@ public class TreeViewControl {
 		final String label = "name";
 
 		final TreeView treeView = this.getTreeView(label);
-		this.swingNode.setContent(treeView);
+		this.mainBorderPane.setCenter(treeView);
 
 		treeView.addControlListener(new ControlAdapter() {
 			@Override
@@ -67,8 +63,6 @@ public class TreeViewControl {
 		}
 
 		final TreeView treeView = new TreeView(t, label);
-		treeView.setBackground(BACKGROUND);
-		treeView.setForeground(FOREGROUND);
 		return treeView;
 	}
 }

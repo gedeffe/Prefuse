@@ -1,23 +1,9 @@
 package prefuse.demos;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import prefuse.Constants;
 import prefuse.Display;
 import prefuse.Visualization;
@@ -35,7 +21,6 @@ import prefuse.action.filter.FisheyeTreeFilter;
 import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.graph.NodeLinkTreeLayout;
 import prefuse.activity.SlowInSlowOutPacer;
-import prefuse.controls.ControlAdapter;
 import prefuse.controls.FocusControl;
 import prefuse.controls.PanControl;
 import prefuse.controls.WheelZoomControl;
@@ -44,7 +29,6 @@ import prefuse.controls.ZoomToFitControl;
 import prefuse.data.Tree;
 import prefuse.data.Tuple;
 import prefuse.data.event.TupleSetListener;
-import prefuse.data.io.TreeMLReader;
 import prefuse.data.search.PrefixSearchTupleSet;
 import prefuse.data.tuple.TupleSet;
 import prefuse.render.AbstractShapeRenderer;
@@ -53,8 +37,6 @@ import prefuse.render.EdgeRenderer;
 import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
 import prefuse.util.FontLib;
-import prefuse.util.ui.JFastLabel;
-import prefuse.util.ui.JSearchPanel;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
 import prefuse.visual.sort.TreeDepthItemSorter;
@@ -121,7 +103,7 @@ public class TreeView extends Display {
 
 		// create the tree layout action
 		final NodeLinkTreeLayout treeLayout = new NodeLinkTreeLayout(tree, this.m_orientation, 50, 0, 8);
-		treeLayout.setLayoutAnchor(new Point2D.Double(25, 300));
+		treeLayout.setLayoutAnchor(new Point2D(25, 300));
 		this.m_vis.putAction("treeLayout", treeLayout);
 
 		final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(tree, this.m_orientation);
@@ -172,14 +154,10 @@ public class TreeView extends Display {
 		this.addControlListener(new PanControl());
 		this.addControlListener(new FocusControl(1, "filter"));
 
-		this.registerKeyboardAction(new OrientAction(Constants.ORIENT_LEFT_RIGHT), "left-to-right",
-				KeyStroke.getKeyStroke("ctrl 1"), WHEN_FOCUSED);
-		this.registerKeyboardAction(new OrientAction(Constants.ORIENT_TOP_BOTTOM), "top-to-bottom",
-				KeyStroke.getKeyStroke("ctrl 2"), WHEN_FOCUSED);
-		this.registerKeyboardAction(new OrientAction(Constants.ORIENT_RIGHT_LEFT), "right-to-left",
-				KeyStroke.getKeyStroke("ctrl 3"), WHEN_FOCUSED);
-		this.registerKeyboardAction(new OrientAction(Constants.ORIENT_BOTTOM_TOP), "bottom-to-top",
-				KeyStroke.getKeyStroke("ctrl 4"), WHEN_FOCUSED);
+		this.setOnKeyTyped(new OrientAction(Constants.ORIENT_LEFT_RIGHT, KeyCode.DIGIT1));
+		this.setOnKeyTyped(new OrientAction(Constants.ORIENT_TOP_BOTTOM, KeyCode.DIGIT2));
+		this.setOnKeyTyped(new OrientAction(Constants.ORIENT_RIGHT_LEFT, KeyCode.DIGIT3));
+		this.setOnKeyTyped(new OrientAction(Constants.ORIENT_BOTTOM_TOP, KeyCode.DIGIT4));
 
 		// ------------------------------------------------
 
@@ -247,112 +225,30 @@ public class TreeView extends Display {
 
 	// ------------------------------------------------------------------------
 
-	public static void main(final String argv[]) {
-		String infile = TREE_CHI;
-		String label = "name";
-		if (argv.length > 1) {
-			infile = argv[0];
-			label = argv[1];
-		}
-		final JComponent treeview = demo(infile, label);
-
-		final JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(treeview);
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	public static JComponent demo() {
-		return demo(TREE_CHI, "name");
-	}
-
-	public static JComponent demo(final String datafile, final String label) {
-		final Color BACKGROUND = Color.WHITE;
-		final Color FOREGROUND = Color.BLACK;
-
-		Tree t = null;
-		try {
-			t = (Tree) new TreeMLReader().readGraph(datafile);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		// create a new treemap
-		final TreeView tview = new TreeView(t, label);
-		tview.setBackground(BACKGROUND);
-		tview.setForeground(FOREGROUND);
-
-		// create a search panel for the tree map
-		final JSearchPanel search = new JSearchPanel(tview.getVisualization(), treeNodes, Visualization.SEARCH_ITEMS,
-				label, true, true);
-		search.setShowResultCount(true);
-		search.setBorder(BorderFactory.createEmptyBorder(5, 5, 4, 0));
-		search.setFont(FontLib.getFont("Tahoma", Font.PLAIN, 11));
-		search.setBackground(BACKGROUND);
-		search.setForeground(FOREGROUND);
-
-		final JFastLabel title = new JFastLabel("                 ");
-		title.setPreferredSize(new Dimension(350, 20));
-		title.setVerticalAlignment(SwingConstants.BOTTOM);
-		title.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
-		title.setFont(FontLib.getFont("Tahoma", Font.PLAIN, 16));
-		title.setBackground(BACKGROUND);
-		title.setForeground(FOREGROUND);
-
-		tview.addControlListener(new ControlAdapter() {
-			@Override
-			public void itemEntered(final VisualItem item, final MouseEvent e) {
-				if (item.canGetString(label)) {
-					title.setText(item.getString(label));
-				}
-			}
-
-			@Override
-			public void itemExited(final VisualItem item, final MouseEvent e) {
-				title.setText(null);
-			}
-		});
-
-		final Box box = new Box(BoxLayout.X_AXIS);
-		box.add(Box.createHorizontalStrut(10));
-		box.add(title);
-		box.add(Box.createHorizontalGlue());
-		box.add(search);
-		box.add(Box.createHorizontalStrut(3));
-		box.setBackground(BACKGROUND);
-
-		final JPanel panel = new JPanel(new BorderLayout());
-		panel.setBackground(BACKGROUND);
-		panel.setForeground(FOREGROUND);
-		panel.add(tview, BorderLayout.CENTER);
-		panel.add(box, BorderLayout.SOUTH);
-		return panel;
-	}
-
-	// ------------------------------------------------------------------------
-
-	public class OrientAction extends AbstractAction {
+	public class OrientAction implements EventHandler<KeyEvent> {
 		private final int orientation;
+		private final KeyCode keyCode;
 
-		public OrientAction(final int orientation) {
+		public OrientAction(final int orientation, final KeyCode keyCodeParam) {
 			this.orientation = orientation;
+			this.keyCode = keyCodeParam;
 		}
 
 		@Override
-		public void actionPerformed(final ActionEvent evt) {
-			TreeView.this.setOrientation(this.orientation);
-			TreeView.this.getVisualization().cancel("orient");
-			TreeView.this.getVisualization().run("treeLayout");
-			TreeView.this.getVisualization().run("orient");
+		public void handle(final KeyEvent keyEvent) {
+			if (keyEvent.isControlDown() && keyEvent.getCode().equals(this.keyCode)) {
+				TreeView.this.setOrientation(this.orientation);
+				TreeView.this.getVisualization().cancel("orient");
+				TreeView.this.getVisualization().run("treeLayout");
+				TreeView.this.getVisualization().run("orient");
+			}
 		}
 	}
 
 	public class AutoPanAction extends Action {
-		private final Point2D m_start = new Point2D.Double();
-		private final Point2D m_end = new Point2D.Double();
-		private final Point2D m_cur = new Point2D.Double();
+		private final Point2D m_start = Point2D.ZERO;
+		private Point2D m_end = Point2D.ZERO;
+		private Point2D m_cur = Point2D.ZERO;
 		private final int m_bias = 150;
 
 		@Override
@@ -380,11 +276,11 @@ public class TreeView extends Display {
 				}
 
 				final VisualItem vi = (VisualItem) ts.tuples().next();
-				this.m_cur.setLocation(TreeView.this.getWidth() / 2, TreeView.this.getHeight() / 2);
-				TreeView.this.getAbsoluteCoordinate(this.m_cur, this.m_start);
-				this.m_end.setLocation(vi.getX() + xbias, vi.getY() + ybias);
+				this.m_cur = new Point2D(TreeView.this.getWidth() / 2, TreeView.this.getHeight() / 2);
+				this.m_cur = TreeView.this.getAbsoluteCoordinate(this.m_cur);
+				this.m_end = new Point2D(vi.getX() + xbias, vi.getY() + ybias);
 			} else {
-				this.m_cur.setLocation(this.m_start.getX() + (frac * (this.m_end.getX() - this.m_start.getX())),
+				this.m_cur = new Point2D(this.m_start.getX() + (frac * (this.m_end.getX() - this.m_start.getX())),
 						this.m_start.getY() + (frac * (this.m_end.getY() - this.m_start.getY())));
 				TreeView.this.panToAbs(this.m_cur);
 			}
