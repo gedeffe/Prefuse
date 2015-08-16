@@ -7,9 +7,9 @@ package test;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -26,7 +26,7 @@ public class RenderingAccuracy extends JComponent {
     }
     
     public void paintComponent(Graphics g) {
-        Graphics2D g2D = (Graphics2D)g;
+        GraphicsContext g2D = (GraphicsContext)g;
         g2D.setColor(getBackground());
         g2D.fillRect(0, 0, getWidth(), getHeight());
         g2D.setColor(getForeground());
@@ -34,7 +34,7 @@ public class RenderingAccuracy extends JComponent {
         lines(g2D);
     }
     
-    public void rects(Graphics2D g2D) {
+    public void rects(GraphicsContext g2D) {
         Rectangle2D r = new Rectangle2D.Double();
         double x = 10, y = 4;
         int inc = 5;
@@ -143,7 +143,7 @@ public class RenderingAccuracy extends JComponent {
         }  x += inc;
     }
     
-    public void lines(Graphics2D g2D) {
+    public void lines(GraphicsContext g2D) {
         Line2D r = new Line2D.Double();
         double x = 60, y = 4;
         int inc = 5;
@@ -220,7 +220,7 @@ public class RenderingAccuracy extends JComponent {
         } x += inc;
     }
     
-    public void draw(Graphics2D g, Line2D r) {
+    public void draw(GraphicsContext g, Line2D r) {
         int x1 = (int)r.getX1();
         int y1 = (int)r.getY1();
         int x2 = (int)r.getX2();
@@ -228,7 +228,7 @@ public class RenderingAccuracy extends JComponent {
         g.drawLine(x1, y1, x2, y2);
     }
     
-    public void draw(Graphics2D g, Rectangle2D r) {
+    public void draw(GraphicsContext g, Rectangle2D r) {
         int x = (int)r.getMinX();
         int y = (int)r.getMinY();
         int w = (int)(r.getWidth() +r.getMinX()-x);
@@ -236,7 +236,7 @@ public class RenderingAccuracy extends JComponent {
         g.drawRect(x, y, w, h);
     }
     
-    public void fill(Graphics2D g, Rectangle2D r) {
+    public void fill(GraphicsContext g, Rectangle2D r) {
         int x = (int)r.getMinX();
         int y = (int)r.getMinY();
         int w = (int)(r.getWidth() +r.getMinX()-x);

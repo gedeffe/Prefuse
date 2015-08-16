@@ -1,6 +1,6 @@
 package prefuse.util;
 
-import java.awt.Font;
+import javafx.scene.text.Font;
 
 import prefuse.util.collections.IntObjectHashMap;
 
@@ -36,7 +36,7 @@ public class FontLib {
      * be valid. Common examples include "Arial", "Verdana", "Tahoma",
      * "Times New Roman", "Georgia", and "Courier New".
      * @param style the font style, such as bold or italics. This field
-     * uses the same style values as the Java {@link java.awt.Font} class.
+     * uses the same style values as the Java {@link javafx.scene.text.Font} class.
      * @param size the size, in points, of the font
      * @return the requested Font instance
      */
@@ -51,7 +51,7 @@ public class FontLib {
      * be valid. Common examples include "Arial", "Verdana", "Tahoma",
      * "Times New Roman", "Georgia", and "Courier New".
      * @param style the font style, such as bold or italics. This field
-     * uses the same style values as the Java {@link java.awt.Font} class.
+     * uses the same style values as the Java {@link javafx.scene.text.Font} class.
      * @param size the size, in points, of the font
      * @return the requested Font instance
      */

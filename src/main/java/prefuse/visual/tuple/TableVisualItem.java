@@ -1,9 +1,9 @@
 package prefuse.visual.tuple;
 
 import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
+import javafx.scene.text.Font;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Rectangle2D;
 
 import prefuse.Visualization;
 import prefuse.data.Graph;
@@ -102,9 +102,9 @@ public class TableVisualItem extends TableTuple implements VisualItem {
     // VisualItem Methods
     
     /**
-     * @see prefuse.visual.VisualItem#render(java.awt.Graphics2D)
+     * @see prefuse.visual.VisualItem#render(javafx.scene.canvas.GraphicsContext)
      */
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         getRenderer().render(g, this);
     }
     
@@ -578,7 +578,7 @@ public class TableVisualItem extends TableTuple implements VisualItem {
     }
 
     /**
-     * @see prefuse.visual.VisualItem#setFont(java.awt.Font)
+     * @see prefuse.visual.VisualItem#setFont(javafx.scene.text.Font)
      */
     public void setFont(Font font) {
         ((VisualTable)m_table).setFont(m_row, font);
@@ -592,7 +592,7 @@ public class TableVisualItem extends TableTuple implements VisualItem {
     }
 
     /**
-     * @see prefuse.visual.VisualItem#setStartFont(java.awt.Font)
+     * @see prefuse.visual.VisualItem#setStartFont(javafx.scene.text.Font)
      */
     public void setStartFont(Font font) {
         ((VisualTable)m_table).setStartFont(m_row, font);
@@ -606,7 +606,7 @@ public class TableVisualItem extends TableTuple implements VisualItem {
     }
     
     /**
-     * @see prefuse.visual.VisualItem#setEndFont(java.awt.Font)
+     * @see prefuse.visual.VisualItem#setEndFont(javafx.scene.text.Font)
      */
     public void setEndFont(Font font) {
         ((VisualTable)m_table).setEndFont(m_row, font);

@@ -1,14 +1,14 @@
 package prefuse.render;
 
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontMetrics;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import javafx.geometry.Point2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 
@@ -82,7 +82,7 @@ public class LabelRenderer extends AbstractShapeRenderer {
     
     /** The holder for the currently computed bounding box */
     protected RectangularShape m_bbox  = new Rectangle2D.Double();
-    protected Point2D m_pt = new Point2D.Double(); // temp point
+    protected Point2D m_pt = Point2D.ZERO; // temp point
     protected Font    m_font; // temp font holder
     protected String    m_text; // label text
     protected Dimension m_textDim = new Dimension(); // text width / height
@@ -383,9 +383,9 @@ public class LabelRenderer extends AbstractShapeRenderer {
     }
     
     /**
-     * @see prefuse.render.Renderer#render(java.awt.Graphics2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#render(javafx.scene.canvas.GraphicsContext, prefuse.visual.VisualItem)
      */
-    public void render(Graphics2D g, VisualItem item) {
+    public void render(GraphicsContext g, VisualItem item) {
         RectangularShape shape = (RectangularShape)getShape(item);
         if ( shape == null ) return;
         
@@ -532,7 +532,7 @@ public class LabelRenderer extends AbstractShapeRenderer {
         }
     }
     
-    private final void drawString(Graphics2D g, FontMetrics fm, String text,
+    private final void drawString(GraphicsContext g, FontMetrics fm, String text,
             boolean useInt, double x, double y, double w)
     {
         // compute the x-coordinate

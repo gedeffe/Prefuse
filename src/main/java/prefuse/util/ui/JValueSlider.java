@@ -2,8 +2,8 @@ package prefuse.util.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -351,7 +351,7 @@ public class JValueSlider extends JComponent {
     }
     
     /**
-     * @see java.awt.Component#setFont(java.awt.Font)
+     * @see java.awt.Component#setFont(javafx.scene.text.Font)
      */
     public void setFont(Font f) {
         m_field.setFont(f);

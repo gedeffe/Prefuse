@@ -2,7 +2,7 @@ package prefuse.util.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -491,7 +491,7 @@ public class JSearchPanel extends JPanel implements DocumentListener, ActionList
 	}
 
 	/**
-	 * @see java.awt.Component#setFont(java.awt.Font)
+	 * @see java.awt.Component#setFont(javafx.scene.text.Font)
 	 */
 	@Override
 	public void setFont(final Font f) {

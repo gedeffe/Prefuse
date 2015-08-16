@@ -4,10 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;

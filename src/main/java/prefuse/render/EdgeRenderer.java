@@ -1,14 +1,14 @@
 package prefuse.render;
 
 import java.awt.BasicStroke;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Line2D;
 import javafx.geometry.Point2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 
 import prefuse.Constants;
 import prefuse.util.ColorLib;
@@ -178,9 +178,9 @@ public class EdgeRenderer extends AbstractShapeRenderer {
     }
 
     /**
-     * @see prefuse.render.Renderer#render(java.awt.Graphics2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#render(javafx.scene.canvas.GraphicsContext, prefuse.visual.VisualItem)
      */
-    public void render(Graphics2D g, VisualItem item) {
+    public void render(GraphicsContext g, VisualItem item) {
         // render the edge line
         super.render(g, item);
         // render the edge arrow head, if appropriate
@@ -303,7 +303,7 @@ public class EdgeRenderer extends AbstractShapeRenderer {
      * Override this method to provide custom curve specifications.
      * To reduce object initialization, the entries of the Point2D array are
      * already initialized, so use the <tt>Point2D.setLocation()</tt> method rather than
-     * <tt>new Point2D.Double()</tt> to more efficiently set custom control points.
+     * <tt>Point2D.ZERO</tt> to more efficiently set custom control points.
      * @param eitem the EdgeItem we are determining the control points for
      * @param cp array of Point2D's (length >= 2) in which to return the control points
      * @param x1 the x co-ordinate of the first node this edge connects to

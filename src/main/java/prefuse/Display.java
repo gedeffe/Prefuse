@@ -843,7 +843,7 @@ public class Display extends Canvas {
 	 * Renders the display within the given graphics context and size bounds.
 	 *
 	 * @param g2D
-	 *            the <code>Graphics2D</code> context to use for rendering
+	 *            the <code>GraphicsContext</code> context to use for rendering
 	 * @param boundsInLocal
 	 *            the rendering width and height of the Display
 	 */

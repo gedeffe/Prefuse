@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;

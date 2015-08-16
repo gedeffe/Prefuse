@@ -5,7 +5,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -328,11 +328,11 @@ public class JRangeSlider extends JComponent
 
     /**
      * Override this method to perform custom painting of the slider trough.
-     * @param g a Graphics2D context for rendering
+     * @param g a GraphicsContext context for rendering
      * @param width the width of the slider trough
      * @param height the height of the slider trough
      */
-    protected void customPaint(Graphics2D g, int width, int height) {
+    protected void customPaint(GraphicsContext g, int width, int height) {
         // does nothing in this class
         // subclasses can override to perform custom painting
     }
@@ -360,7 +360,7 @@ public class JRangeSlider extends JComponent
             }
         }
 
-        Graphics2D g2 = (Graphics2D)g;
+        GraphicsContext g2 = (GraphicsContext)g;
         g2.setColor(getBackground());
         g2.fillRect(0, 0, width, height);
         g2.setColor(getForeground());
@@ -461,7 +461,7 @@ public class JRangeSlider extends JComponent
      * The last boolean specifies whether the point should be at the 
      * right/bottom or left/top. 
      */
-    protected void paintArrow(Graphics2D g2, double x, double y, int w, int h,
+    protected void paintArrow(GraphicsContext g2, double x, double y, int w, int h,
                               boolean topDown)
     {
         int intX = (int)(x+0.5);
@@ -504,7 +504,7 @@ public class JRangeSlider extends JComponent
     /**
      * Adds Windows2K type 3D lighting effects
      */
-    protected void paint3DRectLighting(Graphics2D g2, int x, int y,
+    protected void paint3DRectLighting(GraphicsContext g2, int x, int y,
                                        int width, int height)
     {
         g2.setColor(Color.white);

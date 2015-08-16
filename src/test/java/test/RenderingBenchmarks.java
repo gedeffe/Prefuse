@@ -2,14 +2,14 @@ package test;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.font.GlyphVector;
+import javafx.scene.text.Font.GlyphVector;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.logging.Logger;
 
@@ -69,7 +69,7 @@ public class RenderingBenchmarks extends JComponent {
     }
     
     public void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D)g;
+        GraphicsContext g2 = (GraphicsContext)g;
         
         int x = 0, y = 0, w = 100, h = 100, c=10;
         float xf = 0f, yf = 0f, wf = 100f, hf = 100f, cf=10f;

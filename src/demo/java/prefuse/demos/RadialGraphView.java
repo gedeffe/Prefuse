@@ -3,7 +3,7 @@ package prefuse.demos;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 

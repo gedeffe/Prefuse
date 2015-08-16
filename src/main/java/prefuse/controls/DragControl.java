@@ -25,8 +25,8 @@ public class DragControl extends ControlAdapter implements TableListener {
 
     private VisualItem activeItem;
     protected String action;
-    protected Point2D down = new Point2D.Double();
-    protected Point2D temp = new Point2D.Double();
+    protected Point2D down = Point2D.ZERO;
+    protected Point2D temp = Point2D.ZERO;
     protected boolean dragged, wasFixed, resetItem;
     private boolean fixOnMouseOver = true;
     protected boolean repaint = true;

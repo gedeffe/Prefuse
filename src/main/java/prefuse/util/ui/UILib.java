@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.event.InputEvent;
 
 import javax.swing.Box;

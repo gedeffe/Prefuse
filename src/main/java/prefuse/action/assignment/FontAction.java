@@ -1,6 +1,6 @@
 package prefuse.action.assignment;
 
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.util.logging.Logger;
 
 import prefuse.action.EncoderAction;

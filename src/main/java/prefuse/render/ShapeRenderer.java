@@ -3,7 +3,7 @@ package prefuse.render;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 
 import prefuse.Constants;
 import prefuse.visual.VisualItem;

@@ -20,7 +20,7 @@ public class AnchorUpdateControl extends ControlAdapter {
     private boolean m_anchorOverItem;
     private Layout[] m_layouts;
     private String m_action;
-    private Point2D  m_tmp = new Point2D.Double();
+    private Point2D  m_tmp = Point2D.ZERO;
     
     /**
      * Create a new AnchorUpdateControl.

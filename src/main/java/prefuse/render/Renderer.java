@@ -14,10 +14,10 @@ import prefuse.visual.VisualItem;
 public interface Renderer {
 
 	/**
-	 * Render item into a Graphics2D context.
+	 * Render item into a GraphicsContext context.
 	 *
 	 * @param g
-	 *            the Graphics2D context
+	 *            the GraphicsContext context
 	 * @param item
 	 *            the visual item to draw
 	 */

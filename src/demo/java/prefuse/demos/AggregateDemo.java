@@ -7,7 +7,7 @@ package prefuse.demos;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import javafx.geometry.Point2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
@@ -272,8 +272,8 @@ class AggregateLayout extends Layout {
 class AggregateDragControl extends ControlAdapter {
 
     private VisualItem activeItem;
-    protected Point2D down = new Point2D.Double();
-    protected Point2D temp = new Point2D.Double();
+    protected Point2D down = Point2D.ZERO;
+    protected Point2D temp = Point2D.ZERO;
     protected boolean dragged;
     
     /**

@@ -16,7 +16,7 @@ import prefuse.visual.VisualItem;
  */
 public class PolarLocationAnimator extends ItemAction {
     
-    private Point2D m_anchor = new Point2D.Double();
+    private Point2D m_anchor = Point2D.ZERO;
     private String  m_linear = null;
     
     // temp variables

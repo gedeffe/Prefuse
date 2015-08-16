@@ -1,6 +1,6 @@
 package prefuse.render;
 
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Point2D;
 
 import prefuse.visual.VisualItem;
@@ -17,9 +17,9 @@ import prefuse.visual.VisualItem;
 public class NullRenderer implements Renderer {
 
     /**
-     * @see prefuse.render.Renderer#render(java.awt.Graphics2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#render(javafx.scene.canvas.GraphicsContext, prefuse.visual.VisualItem)
      */
-    public void render(Graphics2D g, VisualItem item) {
+    public void render(GraphicsContext g, VisualItem item) {
         // do nothing
     }
     

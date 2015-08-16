@@ -1,12 +1,12 @@
 package prefuse.render;
 
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import javafx.scene.text.FontMetrics;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import javafx.geometry.Point2D;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 
 import prefuse.Constants;
 import prefuse.util.ColorLib;
@@ -134,9 +134,9 @@ public class AxisRenderer extends AbstractShapeRenderer {
     }
     
     /**
-     * @see prefuse.render.Renderer#render(java.awt.Graphics2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#render(javafx.scene.canvas.GraphicsContext, prefuse.visual.VisualItem)
      */
-    public void render(Graphics2D g, VisualItem item) { 
+    public void render(GraphicsContext g, VisualItem item) { 
     	Shape s = getShape(item); 
     	GraphicsLib.paint(g, item, m_line, getStroke(item), getRenderType(item)); 
     	 

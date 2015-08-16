@@ -218,8 +218,8 @@ public class DataMountain extends Display {
     public class DataMountainControl extends ControlAdapter {
         public static final String URL = "http://www.amazon.com/exec/obidos/tg/detail/-/";
         private VisualItem activeItem;
-        private Point2D down = new Point2D.Double();
-        private Point2D tmp = new Point2D.Double();
+        private Point2D down = Point2D.ZERO;
+        private Point2D tmp = Point2D.ZERO;
         private boolean wasFixed, dragged;
         private boolean repaint = false;
         

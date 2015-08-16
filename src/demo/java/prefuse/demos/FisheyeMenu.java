@@ -8,7 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;

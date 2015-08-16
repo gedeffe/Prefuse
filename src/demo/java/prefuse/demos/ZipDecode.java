@@ -1,6 +1,6 @@
 package prefuse.demos;
 
-import java.awt.Font;
+import javafx.scene.text.Font;
 import java.awt.Shape;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;

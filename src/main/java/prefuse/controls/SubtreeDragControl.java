@@ -22,8 +22,8 @@ import prefuse.visual.VisualItem;
  */
 public class SubtreeDragControl extends ControlAdapter {
 
-    private Point2D down = new Point2D.Double();
-    private Point2D tmp = new Point2D.Double();
+    private Point2D down = Point2D.ZERO;
+    private Point2D tmp = Point2D.ZERO;
     private boolean wasFixed;
     
     /**

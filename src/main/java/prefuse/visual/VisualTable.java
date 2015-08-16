@@ -1,8 +1,8 @@
 package prefuse.visual;
 
 import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.geom.Rectangle2D;
+import javafx.scene.text.Font;
+import javafx.geometry.Rectangle2D;
 
 import prefuse.Visualization;
 import prefuse.data.CascadedTable;

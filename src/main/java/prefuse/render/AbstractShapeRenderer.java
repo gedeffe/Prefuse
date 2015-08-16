@@ -1,7 +1,7 @@
 package prefuse.render;
 
 import java.awt.BasicStroke;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import javafx.geometry.Point2D;
@@ -46,9 +46,9 @@ public abstract class AbstractShapeRenderer implements Renderer {
     }
     
     /**
-     * @see prefuse.render.Renderer#render(java.awt.Graphics2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#render(javafx.scene.canvas.GraphicsContext, prefuse.visual.VisualItem)
      */
-    public void render(Graphics2D g, VisualItem item) {
+    public void render(GraphicsContext g, VisualItem item) {
         Shape shape = getShape(item);
         if (shape != null)
             drawShape(g, item, shape);
@@ -59,7 +59,7 @@ public abstract class AbstractShapeRenderer implements Renderer {
      * stroke and fill color values from the specified VisualItem. This method
      * can be called by subclasses in custom rendering routines. 
      */
-    protected void drawShape(Graphics2D g, VisualItem item, Shape shape) {
+    protected void drawShape(GraphicsContext g, VisualItem item, Shape shape) {
         GraphicsLib.paint(g, item, shape, getStroke(item), getRenderType(item));
     }
 

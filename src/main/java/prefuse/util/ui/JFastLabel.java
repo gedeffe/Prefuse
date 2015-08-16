@@ -1,9 +1,9 @@
 package prefuse.util.ui;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 
@@ -66,7 +66,7 @@ public class JFastLabel extends JComponent {
 	}
 
 	/**
-	 * @see java.awt.Component#setFont(java.awt.Font)
+	 * @see java.awt.Component#setFont(javafx.scene.text.Font)
 	 */
 	@Override
 	public void setFont(final Font f) {
@@ -164,7 +164,7 @@ public class JFastLabel extends JComponent {
 			w = ins.left;
 		}
 		if (this.m_quality) {
-			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+			((GraphicsContext) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
 		g.drawString(this.m_text, w, h);
