@@ -58,6 +58,9 @@ import prefuse.visual.sort.ItemSorter;
  * screen flickering, as JavaFX stuff should handle this, we might just use the
  * canvas as it is (without an off screen buffer).
  *
+ * Every call to "repaint()" should be replaced by an explicit call to
+ * paintComponent with current graphics context.
+ *
  * <p>
  * User interface component that provides an interactive view onto a
  * visualization. The Display is responsible for drawing items to the screen and
@@ -307,6 +310,7 @@ public class Display extends Canvas {
 						Display.this.removePaintListener(this.m_debug);
 						this.m_debug = null;
 					}
+					Display.this.repaint();
 				}
 			}
 		});
@@ -315,6 +319,7 @@ public class Display extends Canvas {
 		this.setOnKeyTyped((keyEvent) -> {
 			if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.D)) {
 				Display.this.setHighQuality(!Display.this.isHighQuality());
+				Display.this.repaint();
 			}
 		});
 
@@ -323,6 +328,18 @@ public class Display extends Canvas {
 			this.setOnKeyTyped(new ExportDisplayAction(this));
 		} catch (final SecurityException se) {
 		}
+	}
+
+	/**
+	 * Temporary method to be able to call smoothly the paintComponent with
+	 * internal GraphicsContext
+	 * 
+	 * @deprecated should be replace by nothing as this component should handle
+	 *             itself the need of repainting what is on screen.
+	 */
+	@Deprecated
+	public void repaint() {
+		this.paintComponent(this.getGraphicsContext2D());
 	}
 
 	/**
