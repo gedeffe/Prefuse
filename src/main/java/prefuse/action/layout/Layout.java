@@ -1,9 +1,9 @@
 package prefuse.action.layout;
 
-import java.awt.Insets;
-import java.awt.geom.Rectangle2D;
-
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import prefuse.Display;
 import prefuse.action.GroupAction;
 import prefuse.util.PrefuseLib;
@@ -25,9 +25,9 @@ public abstract class Layout extends GroupAction {
 	protected Point2D m_anchor = null;
 
 	protected boolean m_margin = false;
-	protected Insets m_insets = new Insets(0, 0, 0, 0);
+	protected Insets m_insets = Insets.EMPTY;
 	protected double[] m_bpts = new double[4];
-	protected Rectangle2D m_tmpb = new Rectangle2D.Double();
+	protected Rectangle2D m_tmpb = Rectangle2D.EMPTY;
 	protected Point2D m_tmpa = Point2D.ZERO;
 
 	// ------------------------------------------------------------------------
@@ -41,7 +41,7 @@ public abstract class Layout extends GroupAction {
 
 	/**
 	 * Create a new Layout.
-	 * 
+	 *
 	 * @param group
 	 *            the data group to layout.
 	 */
@@ -57,7 +57,7 @@ public abstract class Layout extends GroupAction {
 
 	/**
 	 * Set the margins the layout should observe within its layout bounds.
-	 * 
+	 *
 	 * @param top
 	 *            the top margin, in pixels
 	 * @param left
@@ -68,10 +68,7 @@ public abstract class Layout extends GroupAction {
 	 *            the right margin, in pixels
 	 */
 	public void setMargin(final int top, final int left, final int bottom, final int right) {
-		this.m_insets.top = top;
-		this.m_insets.left = left;
-		this.m_insets.bottom = bottom;
-		this.m_insets.right = right;
+		this.m_insets = new Insets(top, right, bottom, left);
 		this.m_margin = true;
 	}
 
@@ -80,7 +77,7 @@ public abstract class Layout extends GroupAction {
 	 * have been explicitly set, that value is used. Otherwise, an attempt is
 	 * made to compute the bounds based upon the display region of the first
 	 * display found in this action's associated Visualization.
-	 * 
+	 *
 	 * @return the layout bounds within which to constrain the layout.
 	 */
 	public Rectangle2D getLayoutBounds() {
@@ -90,15 +87,11 @@ public abstract class Layout extends GroupAction {
 
 		if ((this.m_vis != null) && (this.m_vis.getDisplayCount() > 0)) {
 			final Display d = this.m_vis.getDisplay(0);
-			final Insets i = this.m_margin ? this.m_insets : d.getInsets(this.m_insets);
-			this.m_bpts[0] = i.left;
-			this.m_bpts[1] = i.top;
-			this.m_bpts[2] = d.getWidth() - i.right;
-			this.m_bpts[3] = d.getHeight() - i.bottom;
-			d.getInverseTransform().transform(this.m_bpts, 0, this.m_bpts, 0, 2);
-			this.m_tmpb.setRect(this.m_bpts[0], this.m_bpts[1], this.m_bpts[2] - this.m_bpts[0],
-					this.m_bpts[3] - this.m_bpts[1]);
-			return this.m_tmpb;
+			final Bounds boundsInLocal = d.getBoundsInLocal();
+			final Rectangle2D result = new Rectangle2D(boundsInLocal.getMinX(), boundsInLocal.getMinY(),
+					boundsInLocal.getWidth(), boundsInLocal.getHeight());
+
+			return result;
 		} else {
 			return null;
 		}
@@ -108,7 +101,7 @@ public abstract class Layout extends GroupAction {
 	 * Explicitly set the layout bounds. A reference to the input rectangle
 	 * instance is maintained, not a copy, and so any subsequent changes to the
 	 * rectangle object will also change the layout bounds.
-	 * 
+	 *
 	 * @param b
 	 *            a rectangle specifying the layout bounds. A reference to this
 	 *            same instance is kept.
@@ -123,28 +116,27 @@ public abstract class Layout extends GroupAction {
 	 * Layout implementation. If no anchor point has been explicitly set, the
 	 * center coordinate for the first display found in this action's associated
 	 * Visualization is used, if available.
-	 * 
+	 *
 	 * @return the layout anchor point.
 	 */
 	public Point2D getLayoutAnchor() {
 		if (this.m_anchor != null) {
 			return this.m_anchor;
 		}
-
-		this.m_tmpa.setLocation(0, 0);
+		Point2D result = this.m_tmpa;
 		if (this.m_vis != null) {
 			final Display d = this.m_vis.getDisplay(0);
-			this.m_tmpa.setLocation(d.getWidth() / 2.0, d.getHeight() / 2.0);
-			d.getInverseTransform().transform(this.m_tmpa, this.m_tmpa);
+			result = new Point2D(d.getWidth() / 2.0, d.getHeight() / 2.0);
+			result = d.getInverseTransform().transform(result);
 		}
-		return this.m_tmpa;
+		return result;
 	}
 
 	/**
 	 * Explicitly set the layout anchor point. The provided object will be used
 	 * directly (rather than copying its values), so subsequent changes to that
 	 * point object will change the layout anchor.
-	 * 
+	 *
 	 * @param a
 	 *            the layout anchor point to use
 	 */
@@ -158,7 +150,7 @@ public abstract class Layout extends GroupAction {
 	 * values will be set to the provided x-coordinate. If the current value is
 	 * not a number (NaN), the x-coordinate of the provided referrer item (if
 	 * non null) will be used to set the start coordinate.
-	 * 
+	 *
 	 * @param item
 	 *            the item to set
 	 * @param referrer
@@ -179,7 +171,7 @@ public abstract class Layout extends GroupAction {
 	 * values will be set to the provided y-coordinate. If the current value is
 	 * not a number (NaN), the y-coordinate of the provided referrer item (if
 	 * non null) will be used to set the start coordinate.
-	 * 
+	 *
 	 * @param item
 	 *            the item to set
 	 * @param referrer
