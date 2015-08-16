@@ -1,7 +1,7 @@
 package prefuse.render;
 
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 
 import prefuse.visual.VisualItem;
 
@@ -24,7 +24,7 @@ public class NullRenderer implements Renderer {
     }
     
     /**
-     * @see prefuse.render.Renderer#locatePoint(java.awt.geom.Point2D, prefuse.visual.VisualItem)
+     * @see prefuse.render.Renderer#locatePoint(javafx.geometry.Point2D, prefuse.visual.VisualItem)
      */
     public boolean locatePoint(Point2D p, VisualItem item) {
         return false;

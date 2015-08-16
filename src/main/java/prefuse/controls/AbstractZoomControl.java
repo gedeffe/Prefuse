@@ -1,6 +1,6 @@
 package prefuse.controls;
 
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 
 import prefuse.Display;
 

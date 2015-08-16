@@ -1,7 +1,7 @@
 package prefuse.controls;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 
 import prefuse.Display;
 import prefuse.action.layout.Layout;

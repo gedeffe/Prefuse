@@ -1,6 +1,6 @@
 package prefuse.action.animate;
 
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 
 import prefuse.Display;
 import prefuse.action.ItemAction;

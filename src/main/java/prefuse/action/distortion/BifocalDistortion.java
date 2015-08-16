@@ -96,7 +96,7 @@ public class BifocalDistortion extends Distortion {
 
 	/**
 	 * @see prefuse.action.distortion.Distortion#distortX(double,
-	 *      java.awt.geom.Point2D, java.awt.geom.Rectangle2D)
+	 *      javafx.geometry.Point2D, java.awt.geom.Rectangle2D)
 	 */
 	@Override
 	protected double distortX(final double x, final Point2D a, final Rectangle2D b) {
@@ -105,7 +105,7 @@ public class BifocalDistortion extends Distortion {
 
 	/**
 	 * @see prefuse.action.distortion.Distortion#distortY(double,
-	 *      java.awt.geom.Point2D, java.awt.geom.Rectangle2D)
+	 *      javafx.geometry.Point2D, java.awt.geom.Rectangle2D)
 	 */
 	@Override
 	protected double distortY(final double y, final Point2D a, final Rectangle2D b) {
@@ -114,7 +114,7 @@ public class BifocalDistortion extends Distortion {
 
 	/**
 	 * @see prefuse.action.distortion.Distortion#distortSize(java.awt.geom.Rectangle2D,
-	 *      double, double, java.awt.geom.Point2D, java.awt.geom.Rectangle2D)
+	 *      double, double, javafx.geometry.Point2D, java.awt.geom.Rectangle2D)
 	 */
 	@Override
 	protected double distortSize(final Rectangle2D bbox, final double x, final double y, final Point2D anchor,

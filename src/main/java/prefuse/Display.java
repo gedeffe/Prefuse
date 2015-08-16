@@ -91,7 +91,7 @@ import prefuse.visual.sort.ItemSorter;
  * {@link #setTransform(java.awt.geom.AffineTransform) setTransform} method
  * allows arbitrary transforms to be applied, while the
  * {@link #pan(double,double) pan} and
- * {@link #zoom(java.awt.geom.Point2D,double) zoom} methods provide convenience
+ * {@link #zoom(javafx.geometry.Point2D,double) zoom} methods provide convenience
  * methods that appropriately update the current transform to achieve panning
  * and zooming of the presentation space.
  * </p>
