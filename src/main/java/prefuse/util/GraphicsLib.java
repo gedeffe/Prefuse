@@ -1,13 +1,18 @@
 package prefuse.util;
 
-import javafx.scene.canvas.GraphicsContext;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.transform.Affine;
 import prefuse.render.AbstractShapeRenderer;
 import prefuse.visual.VisualItem;
 
@@ -39,11 +44,11 @@ public class GraphicsLib {
 	 * @return the intersection code. One of {@link #NO_INTERSECTION},
 	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
 	 */
-	public static int intersectLineLine(final Line2D a, final Line2D b, final Point2D intersect) {
-		final double a1x = a.getX1(), a1y = a.getY1();
-		final double a2x = a.getX2(), a2y = a.getY2();
-		final double b1x = b.getX1(), b1y = b.getY1();
-		final double b2x = b.getX2(), b2y = b.getY2();
+	public static int intersectLineLine(final Line a, final Line b, final Point2D intersect) {
+		final double a1x = a.getStartX(), a1y = a.getStartY();
+		final double a2x = a.getEndX(), a2y = a.getEndY();
+		final double b1x = b.getStartX(), b1y = b.getStartY();
+		final double b2x = b.getEndX(), b2y = b.getEndY();
 		return intersectLineLine(a1x, a1y, a2x, a2y, b1x, b1y, b2x, b2y, intersect);
 	}
 
@@ -156,9 +161,9 @@ public class GraphicsLib {
 	 * @return the intersection code. One of {@link #NO_INTERSECTION},
 	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
 	 */
-	public static int intersectLineRectangle(final Line2D l, final Rectangle2D r, final Point2D[] pts) {
-		final double a1x = l.getX1(), a1y = l.getY1();
-		final double a2x = l.getX2(), a2y = l.getY2();
+	public static int intersectLineRectangle(final Line l, final Rectangle2D r, final Point2D[] pts) {
+		final double a1x = l.getStartX(), a1y = l.getStartY();
+		final double a2x = l.getEndX(), a2y = l.getEndY();
 		final double mxx = r.getMaxX(), mxy = r.getMaxY();
 		final double mnx = r.getMinX(), mny = r.getMinY();
 
@@ -691,9 +696,10 @@ public class GraphicsLib {
 	 * @param amount
 	 *            the amount by which to expand the rectangle
 	 */
-	public static void expand(final Rectangle2D r, final double amount) {
-		r.setRect(r.getMinX() - amount, r.getMinY() - amount, r.getWidth() + (2 * amount),
-				r.getHeight() + (2 * amount));
+	public static Rectangle2D expand(final Rectangle2D r, final double amount) {
+		final Rectangle2D result = new Rectangle2D(r.getMinX() - amount, r.getMinY() - amount,
+				r.getWidth() + (2 * amount), r.getHeight() + (2 * amount));
+		return result;
 	}
 
 	// ------------------------------------------------------------------------
@@ -712,23 +718,23 @@ public class GraphicsLib {
 	 *            may affect the final bounds. A null value indicates the
 	 *            default (line width = 1) stroke is used.
 	 */
-	public static void setBounds(final VisualItem item, final Shape shape, final BasicStroke stroke) {
+	public static void setBounds(final VisualItem item, final Shape shape, final Paint stroke) {
 		double x, y, w, h, lw, lw2;
 
-		if (shape instanceof RectangularShape) {
+		if (shape instanceof Rectangle) {
 			// this covers rectangle, rounded rectangle, ellipse, and arcs
-			final RectangularShape r = (RectangularShape) shape;
+			final Rectangle r = (Rectangle) shape;
 			x = r.getX();
 			y = r.getY();
 			w = r.getWidth();
 			h = r.getHeight();
-		} else if (shape instanceof Line2D) {
+		} else if (shape instanceof Line) {
 			// this covers straight lines
-			final Line2D l = (Line2D) shape;
-			x = l.getX1();
-			y = l.getY1();
-			w = l.getX2();
-			h = l.getY2();
+			final Line l = (Line) shape;
+			x = l.getStartX();
+			y = l.getStartY();
+			w = l.getEndX();
+			h = l.getEndY();
 			if (w < x) {
 				lw = x;
 				x = w;
@@ -746,14 +752,14 @@ public class GraphicsLib {
 		} else {
 			// this covers any other arbitrary shapes, but
 			// takes a small object allocation / garbage collection hit
-			final Rectangle2D r = shape.getBounds2D();
-			x = r.getX();
-			y = r.getY();
+			final Bounds r = shape.getBoundsInLocal();
+			x = r.getMinX();
+			y = r.getMinY();
 			w = r.getWidth();
 			h = r.getHeight();
 		}
 
-		// adjust boundary for stoke length as necessary
+		// adjust boundary for stroke length as necessary
 		if ((stroke != null) && ((lw = stroke.getLineWidth()) > 1)) {
 			lw2 = lw / 2.0;
 			x -= lw2;
@@ -767,11 +773,11 @@ public class GraphicsLib {
 	/**
 	 * Render a shape associated with a VisualItem into a graphics context. This
 	 * method uses the {@link java.awt.Graphics} interface methods when it can,
-	 * as opposed to the {@link javafx.scene.canvas.GraphicsContext} methods such as
-	 * {@link javafx.scene.canvas.GraphicsContext#draw(java.awt.Shape)} and
-	 * {@link javafx.scene.canvas.GraphicsContext#fill(java.awt.Shape)}, resulting in a
-	 * significant performance increase on the Windows platform, particularly
-	 * for rectangle and line drawing calls.
+	 * as opposed to the {@link javafx.scene.canvas.GraphicsContext} methods
+	 * such as {@link javafx.scene.canvas.GraphicsContext#draw(java.awt.Shape)}
+	 * and {@link javafx.scene.canvas.GraphicsContext#fill(java.awt.Shape)},
+	 * resulting in a significant performance increase on the Windows platform,
+	 * particularly for rectangle and line drawing calls.
 	 *
 	 * @param g
 	 *            the graphics context to render to
@@ -791,7 +797,7 @@ public class GraphicsLib {
 	 *            , or
 	 *            {@link prefuse.render.AbstractShapeRenderer#RENDER_TYPE_NONE}.
 	 */
-	public static void paint(final GraphicsContext g, final VisualItem item, final Shape shape, final BasicStroke stroke,
+	public static void paint(final GraphicsContext g, final VisualItem item, final Shape shape, final Paint stroke,
 			final int type) {
 		// if render type is NONE, then there is nothing to do
 		if (type == AbstractShapeRenderer.RENDER_TYPE_NONE) {
@@ -809,33 +815,35 @@ public class GraphicsLib {
 			return;
 		}
 
-		Stroke origStroke = null;
+		Paint origStroke = null;
 		if (sdraw) {
 			origStroke = g.getStroke();
 			g.setStroke(stroke);
 		}
 
-		int x, y, w, h, aw, ah;
-		double xx, yy, ww, hh;
+		int x, y, w, h;
+		double xx, yy, ww, hh, aw, ah;
 
 		// see if an optimized (non-shape) rendering call is available for us
 		// these can speed things up significantly on the windows JRE
 		// it is stupid we have to do this, but we do what we must
 		// if we are zoomed in, we have no choice but to use
 		// full precision rendering methods.
-		final AffineTransform at = g.getTransform();
-		final double scale = Math.max(at.getScaleX(), at.getScaleY());
+		final Affine at = g.getTransform();
+		final double scale = Math.max(at.getMxx(), at.getMyy());
 		if (scale > 1.5) {
 			if (fdraw) {
-				g.setPaint(fillColor);
-				g.fill(shape);
+				g.setFill(fillColor);
+				// TODO we do not use shape information, and we should ...
+				g.fill();
 			}
 			if (sdraw) {
-				g.setPaint(strokeColor);
-				g.draw(shape);
+				g.setStroke(strokeColor);
+				// TODO we do not use shape information, and we should ...
+				g.stroke();
 			}
-		} else if (shape instanceof RectangularShape) {
-			final RectangularShape r = (RectangularShape) shape;
+		} else if (shape instanceof Rectangle) {
+			final Rectangle r = (Rectangle) shape;
 			xx = r.getX();
 			ww = r.getWidth();
 			yy = r.getY();
@@ -846,66 +854,62 @@ public class GraphicsLib {
 			w = (int) ((ww + xx) - x);
 			h = (int) ((hh + yy) - y);
 
-			if (shape instanceof Rectangle2D) {
+			// check rounded rectangle or not ...
+			if ((r.getArcHeight() > 0) && (r.getArcWidth() > 0)) {
+				aw = r.getArcWidth();
+				ah = r.getArcHeight();
 				if (fdraw) {
-					g.setPaint(fillColor);
-					g.fillRect(x, y, w, h);
-				}
-				if (sdraw) {
-					g.setPaint(strokeColor);
-					g.drawRect(x, y, w, h);
-				}
-			} else if (shape instanceof RoundRectangle2D) {
-				final RoundRectangle2D rr = (RoundRectangle2D) shape;
-				aw = (int) rr.getArcWidth();
-				ah = (int) rr.getArcHeight();
-				if (fdraw) {
-					g.setPaint(fillColor);
+					g.setFill(fillColor);
 					g.fillRoundRect(x, y, w, h, aw, ah);
 				}
 				if (sdraw) {
-					g.setPaint(strokeColor);
-					g.drawRoundRect(x, y, w, h, aw, ah);
-				}
-			} else if (shape instanceof Ellipse2D) {
-				if (fdraw) {
-					g.setPaint(fillColor);
-					g.fillOval(x, y, w, h);
-				}
-				if (sdraw) {
-					g.setPaint(strokeColor);
-					g.drawOval(x, y, w, h);
+					g.setStroke(strokeColor);
+					g.strokeRoundRect(x, y, w, h, aw, ah);
 				}
 			} else {
 				if (fdraw) {
-					g.setPaint(fillColor);
-					g.fill(shape);
+					g.setFill(fillColor);
+					g.fillRect(x, y, w, h);
 				}
 				if (sdraw) {
-					g.setPaint(strokeColor);
-					g.draw(shape);
+					g.setStroke(strokeColor);
+					g.strokeRect(x, y, w, h);
 				}
 			}
-		} else if (shape instanceof Line2D) {
+		} else if (shape instanceof Ellipse) {
+			if (fdraw) {
+				g.setFill(fillColor);
+				g.fillOval(x, y, w, h);
+			}
 			if (sdraw) {
-				final Line2D l = (Line2D) shape;
-				x = (int) (l.getX1() + 0.5);
-				y = (int) (l.getY1() + 0.5);
-				w = (int) (l.getX2() + 0.5);
-				h = (int) (l.getY2() + 0.5);
-				g.setPaint(strokeColor);
-				g.drawLine(x, y, w, h);
+				g.setStroke(strokeColor);
+				g.strokeOval(x, y, w, h);
+			}
+		} else if (shape instanceof Line) {
+			if (sdraw) {
+				final Line l = (Line) shape;
+				x = (int) (l.getStartX() + 0.5);
+				y = (int) (l.getStartY() + 0.5);
+				w = (int) (l.getEndX() + 0.5);
+				h = (int) (l.getEndY() + 0.5);
+				g.setStroke(strokeColor);
+				g.strokeLine(x, y, w, h);
 			}
 		} else {
 			if (fdraw) {
-				g.setPaint(fillColor);
-				g.fill(shape);
+				g.setFill(fillColor);
+				// TODO we do not use shape information, and we should ...
+				g.fill();
 			}
 			if (sdraw) {
-				g.setPaint(strokeColor);
-				g.draw(shape);
+				g.setStroke(strokeColor);
+				g.stroke();
 			}
 		}
+		// TODO add missing cases for Shape : Arc, Circle, Polygon, Polyline,
+		// Text
+		// we might just add provided shape to parent Canvas and let it do the
+		// job.
 		if (sdraw) {
 			g.setStroke(origStroke);
 		}
