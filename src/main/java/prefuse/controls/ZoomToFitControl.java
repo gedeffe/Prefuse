@@ -1,6 +1,6 @@
 package prefuse.controls;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Rectangle2D;
 
 import prefuse.Display;
@@ -82,7 +82,7 @@ public class ZoomToFitControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemClicked(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemClicked(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemClicked(VisualItem item, MouseEvent e) {
         if ( m_zoomOverItem )
@@ -90,7 +90,7 @@ public class ZoomToFitControl extends ControlAdapter {
     }
     
     /**
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseClicked(javafx.scene.input.MouseEvent)
      */
     public void mouseClicked(MouseEvent e) {
     	Display display = (Display)e.getComponent();

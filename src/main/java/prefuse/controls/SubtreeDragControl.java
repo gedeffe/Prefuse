@@ -1,7 +1,7 @@
 package prefuse.controls;
 
 import java.awt.Cursor;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Point2D;
 import java.util.Iterator;
 
@@ -34,7 +34,7 @@ public class SubtreeDragControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemEntered(VisualItem item, MouseEvent e) {
         if ( !(item instanceof NodeItem) ) return;
@@ -43,7 +43,7 @@ public class SubtreeDragControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemExited(VisualItem item, MouseEvent e) {
         if ( !(item instanceof NodeItem) ) return;
@@ -52,7 +52,7 @@ public class SubtreeDragControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemPressed(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemPressed(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemPressed(VisualItem item, MouseEvent e) {
         if (!SwingUtilities.isLeftMouseButton(e)) return;
@@ -64,7 +64,7 @@ public class SubtreeDragControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemReleased(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemReleased(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemReleased(VisualItem item, MouseEvent e) {
         if (!SwingUtilities.isLeftMouseButton(e)) return;
@@ -73,7 +73,7 @@ public class SubtreeDragControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemDragged(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemDragged(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemDragged(VisualItem item, MouseEvent e) {
         if (!SwingUtilities.isLeftMouseButton(e)) return;

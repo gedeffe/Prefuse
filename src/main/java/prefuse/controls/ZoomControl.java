@@ -1,7 +1,7 @@
 package prefuse.controls;
 
 import java.awt.Cursor;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Point2D;
 
 import prefuse.Display;
@@ -43,7 +43,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
     
     /**
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mousePressed(javafx.scene.input.MouseEvent)
      */
     public void mousePressed(MouseEvent e) {
         if ( UILib.isButtonPressed(e, button) ) {
@@ -61,7 +61,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
     
     /**
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseMotionListener#mouseDragged(javafx.scene.input.MouseEvent)
      */
     public void mouseDragged(MouseEvent e) {
         if ( UILib.isButtonPressed(e, button) ) {
@@ -86,7 +86,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
 
     /**
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseReleased(javafx.scene.input.MouseEvent)
      */
     public void mouseReleased(MouseEvent e) {
         if ( UILib.isButtonPressed(e, button) ) {
@@ -95,7 +95,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
     
     /**
-     * @see prefuse.controls.Control#itemPressed(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemPressed(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemPressed(VisualItem item, MouseEvent e) {
         if ( m_zoomOverItem )
@@ -103,7 +103,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
 
     /**
-     * @see prefuse.controls.Control#itemDragged(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemDragged(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemDragged(VisualItem item, MouseEvent e) {
         if ( m_zoomOverItem )
@@ -111,7 +111,7 @@ public class ZoomControl extends AbstractZoomControl {
     }
     
     /**
-     * @see prefuse.controls.Control#itemReleased(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemReleased(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemReleased(VisualItem item, MouseEvent e) {
         if ( m_zoomOverItem )

@@ -1,6 +1,6 @@
 package prefuse.controls;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import java.util.Iterator;
 
 import prefuse.visual.EdgeItem;
@@ -41,7 +41,7 @@ public class NeighborHighlightControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemEntered(VisualItem item, MouseEvent e) {
         if ( item instanceof NodeItem )
@@ -49,7 +49,7 @@ public class NeighborHighlightControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemExited(VisualItem item, MouseEvent e) {
         if ( item instanceof NodeItem )

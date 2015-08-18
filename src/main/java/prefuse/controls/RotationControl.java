@@ -2,7 +2,7 @@ package prefuse.controls;
 
 import java.awt.Cursor;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 
 import prefuse.Display;
 import prefuse.util.ui.UILib;
@@ -45,7 +45,7 @@ public class RotationControl extends ControlAdapter {
     }
     
     /**
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mousePressed(javafx.scene.input.MouseEvent)
      */
     public void mousePressed(MouseEvent e) {
         if ( UILib.isButtonPressed(e, m_button) ) {
@@ -58,7 +58,7 @@ public class RotationControl extends ControlAdapter {
     }
     
     /**
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseMotionListener#mouseDragged(javafx.scene.input.MouseEvent)
      */
     public void mouseDragged(MouseEvent e) {
         if ( UILib.isButtonPressed(e, m_button) ) {
@@ -76,7 +76,7 @@ public class RotationControl extends ControlAdapter {
     }
     
     /**
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseReleased(javafx.scene.input.MouseEvent)
      */
     public void mouseReleased(MouseEvent e) {
         if ( UILib.isButtonPressed(e, m_button) ) {

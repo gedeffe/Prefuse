@@ -1,8 +1,7 @@
 package prefuse.controls;
 
-import java.awt.Point;
-import java.awt.event.MouseWheelEvent;
-
+import javafx.geometry.Point2D;
+import javafx.scene.input.ScrollEvent;
 import prefuse.Display;
 import prefuse.visual.VisualItem;
 
@@ -16,53 +15,62 @@ import prefuse.visual.VisualItem;
  * @author <a href="http://jheer.org">jeffrey heer</a>
  */
 public class WheelZoomControl extends AbstractZoomControl {
-    
-    private Point m_point = new Point();
-    private final boolean inverted;
-    private final boolean atPointer;
-    
-    /**
-     * Creates a new <tt>WheelZoomControl</tt>.  If <tt>inverted</tt> is true,
-     * scrolling the mouse wheel toward you will make the graph appear
-     * smaller.  If <tt>atPointer</tt> is true, zooming will be centered on
-     * the mouse pointer instead of the center of the display.
-     * 
-     * @param inverted true if the scroll direction should be inverted
-     * @param atPointer true if zooming should be centered on the mouse pointer
-     */
-    public WheelZoomControl(boolean inverted, boolean atPointer) {
-    	this.inverted = inverted;
-    	this.atPointer = atPointer;
-    }
-    
-    /**
-     * Creates a new <tt>WheelZoomControl</tt> with the default zoom direction
-     * and zooming on the center of the display.
-     */
-    public WheelZoomControl() {
-    	this(false, false);
-    }
-    
-    /**
-     * @see prefuse.controls.Control#itemWheelMoved(prefuse.visual.VisualItem, java.awt.event.MouseWheelEvent)
-     */
-    public void itemWheelMoved(VisualItem item, MouseWheelEvent e) {
-        if ( m_zoomOverItem )
-            mouseWheelMoved(e);
-    }
-    
-    /**
-     * @see java.awt.event.MouseWheelListener#mouseWheelMoved(java.awt.event.MouseWheelEvent)
-     */
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        Display display = (Display)e.getComponent();
-        if(atPointer) m_point = e.getPoint();
-        else {
-        	m_point.x = display.getWidth()/2;
-        	m_point.y = display.getHeight()/2;
-        }
-        if(inverted) zoom(display, m_point, 1 - 0.1f * e.getWheelRotation(), false);
-        else zoom(display, m_point, 1 + 0.1f * e.getWheelRotation(), false);
-    }
-    
+
+	private Point2D m_point = Point2D.ZERO;
+	private final boolean inverted;
+	private final boolean atPointer;
+
+	/**
+	 * Creates a new <tt>WheelZoomControl</tt>. If <tt>inverted</tt> is true,
+	 * scrolling the mouse wheel toward you will make the graph appear smaller.
+	 * If <tt>atPointer</tt> is true, zooming will be centered on the mouse
+	 * pointer instead of the center of the display.
+	 *
+	 * @param inverted
+	 *            true if the scroll direction should be inverted
+	 * @param atPointer
+	 *            true if zooming should be centered on the mouse pointer
+	 */
+	public WheelZoomControl(final boolean inverted, final boolean atPointer) {
+		this.inverted = inverted;
+		this.atPointer = atPointer;
+	}
+
+	/**
+	 * Creates a new <tt>WheelZoomControl</tt> with the default zoom direction
+	 * and zooming on the center of the display.
+	 */
+	public WheelZoomControl() {
+		this(false, false);
+	}
+
+	/**
+	 * @see prefuse.controls.Control#itemWheelMoved(prefuse.visual.VisualItem,
+	 *      javafx.scene.input.ScrollEvent)
+	 */
+	@Override
+	public void itemWheelMoved(final VisualItem item, final ScrollEvent e) {
+		if (this.m_zoomOverItem) {
+			this.mouseWheelMoved(e);
+		}
+	}
+
+	/**
+	 * @see java.awt.event.MouseWheelListener#mouseWheelMoved(javafx.scene.input.ScrollEvent)
+	 */
+	@Override
+	public void mouseWheelMoved(final ScrollEvent e) {
+		final Display display = (Display) e.getSource();
+		if (this.atPointer) {
+			this.m_point = new Point2D(e.getX(), e.getY());
+		} else {
+			this.m_point = new Point2D(display.getWidth() / 2, display.getHeight() / 2);
+		}
+		if (this.inverted) {
+			this.zoom(display, this.m_point, 1 - (0.1f * e.getDeltaX()), false);
+		} else {
+			this.zoom(display, this.m_point, 1 + (0.1f * e.getDeltaX()), false);
+		}
+	}
+
 } // end of class WheelZoomControl

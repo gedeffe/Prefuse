@@ -1,7 +1,5 @@
 package prefuse.controls;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -11,13 +9,13 @@ import prefuse.visual.VisualItem;
 /**
  * Listener interface for processing user interface events on a Display.
  *
- * TODO we might delete the link with EventHandler in a second time as it seems
- * not needed.
+ * TODO we might delete the link with EventHandler<InputEvent> in a second time
+ * as it seems not needed.
  *
  * @author alan newberger
  * @author <a href="http://jheer.org">jeffrey heer</a>
  */
-public interface Control extends EventHandler<InputEvent> {
+public interface Control {
 	/** Represents the use of the left mouse button */
 	public static final MouseButton LEFT_MOUSE_BUTTON = MouseButton.PRIMARY;
 	/** Represents the use of the middle mouse button */

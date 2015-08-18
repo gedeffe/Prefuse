@@ -1,6 +1,6 @@
 package prefuse.controls;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 
 import prefuse.visual.VisualItem;
 
@@ -23,14 +23,14 @@ public class HoverActionControl extends ControlAdapter {
     }
     
     /**
-     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemEntered(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemEntered(VisualItem item, MouseEvent e) {
         item.getVisualization().run(m_action);
     }
 
     /**
-     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, java.awt.event.MouseEvent)
+     * @see prefuse.controls.Control#itemExited(prefuse.visual.VisualItem, javafx.scene.input.MouseEvent)
      */
     public void itemExited(VisualItem item, MouseEvent e) {
         item.getVisualization().run(m_action);
