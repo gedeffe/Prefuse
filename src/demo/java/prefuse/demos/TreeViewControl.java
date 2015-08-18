@@ -1,6 +1,6 @@
 package prefuse.demos;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

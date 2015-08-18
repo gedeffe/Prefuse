@@ -6,7 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import javafx.scene.text.Font;
 import java.awt.Shape;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Rectangle2D;
 import java.util.Iterator;
 

@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import javafx.scene.text.Font;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;

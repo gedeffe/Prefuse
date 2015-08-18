@@ -1,7 +1,6 @@
 package prefuse.visual;
 
 import javafx.geometry.Bounds;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
@@ -122,7 +121,7 @@ public interface VisualItem extends Tuple {
 	 *
 	 * @return the validated boundig box of this item
 	 */
-	public Rectangle2D validateBounds();
+	public Bounds validateBounds();
 
 	// -- Boolean Flags -------------------------------------------------------
 

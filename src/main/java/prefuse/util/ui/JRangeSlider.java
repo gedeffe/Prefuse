@@ -9,7 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -648,7 +648,7 @@ public class JRangeSlider extends JComponent
     }
 
     /**
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mousePressed(javafx.scene.input.MouseEvent)
      */
     public void mousePressed(MouseEvent e) {        
         if (orientation == VERTICAL) {
@@ -667,7 +667,7 @@ public class JRangeSlider extends JComponent
     }
 
     /**
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseMotionListener#mouseDragged(javafx.scene.input.MouseEvent)
      */
     public void mouseDragged(MouseEvent e) {
         requestFocus();
@@ -727,7 +727,7 @@ public class JRangeSlider extends JComponent
     }
 
     /**
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseReleased(javafx.scene.input.MouseEvent)
      */
     public void mouseReleased(MouseEvent e) {
         pick = PICK_NONE;
@@ -735,7 +735,7 @@ public class JRangeSlider extends JComponent
     }
 
     /**
-     * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseMotionListener#mouseMoved(javafx.scene.input.MouseEvent)
      */
     public void mouseMoved(MouseEvent e) {
         if (orientation == VERTICAL) {
@@ -773,17 +773,17 @@ public class JRangeSlider extends JComponent
     }
 
     /**
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseClicked(javafx.scene.input.MouseEvent)
      */
     public void mouseClicked(MouseEvent e) {
     }
     /**
-     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseEntered(javafx.scene.input.MouseEvent)
      */
     public void mouseEntered(MouseEvent e) {
     }
     /**
-     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     * @see java.awt.event.MouseListener#mouseExited(javafx.scene.input.MouseEvent)
      */
     public void mouseExited(MouseEvent e) {
     }

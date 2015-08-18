@@ -8,7 +8,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;

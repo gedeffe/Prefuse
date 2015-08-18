@@ -7,7 +7,7 @@ import javafx.scene.text.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

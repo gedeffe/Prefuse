@@ -1,7 +1,6 @@
 package prefuse;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -21,6 +20,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -91,9 +91,9 @@ import prefuse.visual.sort.ItemSorter;
  * {@link #setTransform(java.awt.geom.AffineTransform) setTransform} method
  * allows arbitrary transforms to be applied, while the
  * {@link #pan(double,double) pan} and
- * {@link #zoom(javafx.geometry.Point2D,double) zoom} methods provide convenience
- * methods that appropriately update the current transform to achieve panning
- * and zooming of the presentation space.
+ * {@link #zoom(javafx.geometry.Point2D,double) zoom} methods provide
+ * convenience methods that appropriately update the current transform to
+ * achieve panning and zooming of the presentation space.
  * </p>
  *
  * <p>
@@ -333,7 +333,7 @@ public class Display extends Canvas {
 	/**
 	 * Temporary method to be able to call smoothly the paintComponent with
 	 * internal GraphicsContext
-	 * 
+	 *
 	 * @deprecated should be replace by nothing as this component should handle
 	 *             itself the need of repainting what is on screen.
 	 */

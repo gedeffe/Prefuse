@@ -1,7 +1,7 @@
 package prefuse.demos;
 
 import java.awt.Cursor;
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Point2D;
 import java.util.Iterator;
 
