@@ -44,7 +44,7 @@ public class PrefuseLib {
 
 	/**
 	 * Get a String showing current JVM memory usage in kilobytes.
-	 * 
+	 *
 	 * @return the memory usage String in KB
 	 */
 	public static String getMemoryUsageInKB() {
@@ -56,7 +56,7 @@ public class PrefuseLib {
 
 	/**
 	 * Get a String showing current JVM memory usage in megabytes.
-	 * 
+	 *
 	 * @return the memory usage String in MB
 	 */
 	public static String getMemoryUsageInMB() {
@@ -69,7 +69,7 @@ public class PrefuseLib {
 	/**
 	 * Returns a string showing debugging info such as number of visualized
 	 * items and the current frame rate.
-	 * 
+	 *
 	 * @return the debug string
 	 */
 	public static String getDisplayStats(final Display d) {
@@ -113,7 +113,7 @@ public class PrefuseLib {
 
 	/**
 	 * Get the distance between the x,y points of two VisualItems.
-	 * 
+	 *
 	 * @param vi1
 	 *            the first VisualItem
 	 * @param vi2
@@ -131,7 +131,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -151,7 +151,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -171,7 +171,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -191,7 +191,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -211,7 +211,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -231,7 +231,7 @@ public class PrefuseLib {
 	 * representing a current value along with starting and ending values). The
 	 * current value will become the new starting value, while the given value
 	 * will become the new current and ending values.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param field
@@ -250,7 +250,7 @@ public class PrefuseLib {
 	 * Update the visibility of an item. The current visibility will become the
 	 * new starting visibility, while the given visibility value will become the
 	 * new current and ending visibility.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param val
@@ -268,7 +268,7 @@ public class PrefuseLib {
 	 * and ending x values. This method also supports an optional referrer item,
 	 * whose x coordinate will become the new starting x coordinate of item if
 	 * item's current x value is NaN.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param referrer
@@ -293,7 +293,7 @@ public class PrefuseLib {
 	 * and ending y values. This method also supports an optional referrer item,
 	 * whose y coordinate will become the new starting y coordinate of item if
 	 * item's current x value is NaN.
-	 * 
+	 *
 	 * @param item
 	 *            the VisualItem to update
 	 * @param referrer
@@ -319,7 +319,7 @@ public class PrefuseLib {
 	 * Indicates if a group is a child group, a non-top-level data group in a
 	 * set of nested data groups (e.g., the node or edge table of a graph or
 	 * tree).
-	 * 
+	 *
 	 * @return true if the group is a nested, or child, group
 	 */
 	public static boolean isChildGroup(final String group) {
@@ -329,7 +329,7 @@ public class PrefuseLib {
 	/**
 	 * Get the parent group string of a child group, stripping off the
 	 * bottom-level group from the group name (e.g., graph.nodes --> graph).
-	 * 
+	 *
 	 * @param group
 	 *            the group name
 	 * @return the stripped parent group name
@@ -342,7 +342,7 @@ public class PrefuseLib {
 	/**
 	 * Get the tail group name of a child group, stripping all but the
 	 * bottom-level group from the group name (e.g., graph.nodes --> nodes).
-	 * 
+	 *
 	 * @param group
 	 *            the group name
 	 * @return the stripped child group name
@@ -355,7 +355,7 @@ public class PrefuseLib {
 	/**
 	 * Get the group name for the given parent and child group, simply
 	 * concatenating them together with a group delimiter in between.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent group name
 	 * @param child
@@ -368,7 +368,7 @@ public class PrefuseLib {
 
 	/**
 	 * For a given interpolated field name, get the name of the start field.
-	 * 
+	 *
 	 * @param field
 	 *            the data field
 	 * @return the starting field for the interpolated column
@@ -379,7 +379,7 @@ public class PrefuseLib {
 
 	/**
 	 * For a given interpolated field name, get the name of the end field.
-	 * 
+	 *
 	 * @param field
 	 *            the data field
 	 * @return the ending field for the interpolated column
@@ -397,7 +397,7 @@ public class PrefuseLib {
 	 * such as x,y position, stroke, fill, and text, colors, size, font, and
 	 * validated, visibility, interactive, fixed, highlight, and mouse hover
 	 * fields.
-	 * 
+	 *
 	 * @return the VisualItem data Schema
 	 */
 	public static Schema getVisualItemSchema() {
@@ -440,7 +440,7 @@ public class PrefuseLib {
 		s.addColumn(VisualItem.STROKE, Stroke.class, new BasicStroke());
 
 		// font
-		final Font defFont = FontLib.getFont("SansSerif", Font.PLAIN, 10);
+		final Font defFont = FontLib.getFont("SansSerif", 10);
 		s.addInterpolatedColumn(VisualItem.FONT, Font.class, defFont);
 
 		// degree-of-interest
@@ -453,7 +453,7 @@ public class PrefuseLib {
 	 * Get the minimal Schema needed for a unique VisualItem. Can be useful for
 	 * derived groups that inherit other visual properties from a another visual
 	 * data group.
-	 * 
+	 *
 	 * @return the minimal VisualItem data Schema
 	 */
 	public static Schema getMinimalVisualSchema() {
@@ -477,7 +477,7 @@ public class PrefuseLib {
 	 * the VisualItem Schema with an additional end-point coordinate, a String
 	 * label field, and numeric value field for storing the value which the axis
 	 * label corresponds to.
-	 * 
+	 *
 	 * @return the Schema for axis tick marks and labels.
 	 */
 	public static Schema getAxisLabelSchema() {

@@ -808,9 +808,9 @@ public class GraphicsLib {
 		final Color strokeColor = ColorLib.getColor(item.getStrokeColor());
 		final Color fillColor = ColorLib.getColor(item.getFillColor());
 		final boolean sdraw = ((type == AbstractShapeRenderer.RENDER_TYPE_DRAW)
-				|| (type == AbstractShapeRenderer.RENDER_TYPE_DRAW_AND_FILL)) && (strokeColor.getAlpha() != 0);
+				|| (type == AbstractShapeRenderer.RENDER_TYPE_DRAW_AND_FILL)) && (strokeColor.getOpacity() != 0);
 		final boolean fdraw = ((type == AbstractShapeRenderer.RENDER_TYPE_FILL)
-				|| (type == AbstractShapeRenderer.RENDER_TYPE_DRAW_AND_FILL)) && (fillColor.getAlpha() != 0);
+				|| (type == AbstractShapeRenderer.RENDER_TYPE_DRAW_AND_FILL)) && (fillColor.getOpacity() != 0);
 		if (!(sdraw || fdraw)) {
 			return;
 		}
@@ -877,6 +877,11 @@ public class GraphicsLib {
 				}
 			}
 		} else if (shape instanceof Ellipse) {
+			final Ellipse ellipse = (Ellipse) shape;
+			x = (int) (ellipse.getCenterX() - ellipse.getRadiusX());
+			y = (int) (ellipse.getCenterY() - ellipse.getRadiusY());
+			w = (int) (2 * ellipse.getRadiusX());
+			h = (int) (2 * ellipse.getRadiusY());
 			if (fdraw) {
 				g.setFill(fillColor);
 				g.fillOval(x, y, w, h);
