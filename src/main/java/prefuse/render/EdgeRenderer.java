@@ -1,20 +1,20 @@
 package prefuse.render;
 
-import java.awt.geom.AffineTransform;
-
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Affine;
-import javafx.scene.transform.Transform;
 import prefuse.Constants;
 import prefuse.util.ColorLib;
 import prefuse.util.GraphicsLib;
+import prefuse.util.JavaFxLib;
 import prefuse.util.StrokeLib;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.VisualItem;
@@ -140,14 +140,17 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 
 			// compute the intersection with the target bounding box
 			final VisualItem dest = forward ? e.getTargetItem() : e.getSourceItem();
-			final int i = GraphicsLib.intersectLineRectangle(start, end, dest.getBounds(), this.m_isctPoints);
+			final Bounds bounds = dest.getBounds();
+			final Rectangle2D rectangle = new Rectangle2D(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(),
+					bounds.getHeight());
+			final int i = GraphicsLib.intersectLineRectangle(start, end, rectangle, this.m_isctPoints);
 			if (i > 0) {
 				end = this.m_isctPoints[0];
 			}
 
 			// create the arrow head shape
 			final Affine at = this.getArrowTrans(start, end, this.m_curWidth);
-			this.m_curArrow = at.createTransformedShape(this.m_arrowHead);
+			this.m_arrowHead.getTransforms().add(at);
 
 			// update the endpoints for the edge shape
 			// need to bias this by arrow head size
@@ -166,12 +169,12 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 		final double n2y = this.m_tmpPoints[1].getY();
 		switch (type) {
 		case Constants.EDGE_TYPE_LINE:
-			this.m_line.setLine(n1x, n1y, n2x, n2y);
+			this.m_line = new Line(n1x, n1y, n2x, n2y);
 			shape = this.m_line;
 			break;
 		case Constants.EDGE_TYPE_CURVE:
 			this.getCurveControlPoints(edge, this.m_ctrlPoints, n1x, n1y, n2x, n2y);
-			this.m_cubic.setCurve(n1x, n1y, this.m_ctrlPoints[0].getX(), this.m_ctrlPoints[0].getY(),
+			this.m_cubic = new CubicCurve(n1x, n1y, this.m_ctrlPoints[0].getX(), this.m_ctrlPoints[0].getY(),
 					this.m_ctrlPoints[1].getX(), this.m_ctrlPoints[1].getY(), n2x, n2y);
 			shape = this.m_cubic;
 			break;
@@ -193,8 +196,8 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 		super.render(g, item);
 		// render the edge arrow head, if appropriate
 		if (this.m_curArrow != null) {
-			g.setPaint(ColorLib.getColor(item.getFillColor()));
-			g.fill(this.m_curArrow);
+			g.setFill(ColorLib.getColor(item.getFillColor()));
+			JavaFxLib.drawShape(this.m_curArrow, g);
 		}
 	}
 
@@ -203,12 +206,13 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 	 * position and orientation specified by the provided line segment end
 	 * points.
 	 */
-	protected AffineTransform getArrowTrans(final Point2D p1, final Point2D p2, final double width) {
-		this.m_arrowTrans.setToTranslation(p2.getX(), p2.getY());
-		this.m_arrowTrans.rotate(-HALF_PI + Math.atan2(p2.getY() - p1.getY(), p2.getX() - p1.getX()));
+	protected Affine getArrowTrans(final Point2D p1, final Point2D p2, final double width) {
+		this.m_arrowTrans.setToIdentity();
+		this.m_arrowTrans.appendTranslation(p2.getX(), p2.getY());
+		this.m_arrowTrans.appendRotation(-HALF_PI + Math.atan2(p2.getY() - p1.getY(), p2.getX() - p1.getX()));
 		if (width > 1) {
 			final double scalar = width / 4;
-			Transform.scale(scalar, scalar);
+			this.m_arrowTrans.appendScale(scalar, scalar);
 		}
 		return this.m_arrowTrans;
 	}
@@ -225,15 +229,7 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 	 * @return the untransformed arrow head shape
 	 */
 	protected Polygon updateArrowHead(final int w, final int h) {
-		if (this.m_arrowHead == null) {
-			this.m_arrowHead = new Polygon();
-		} else {
-			this.m_arrowHead.reset();
-		}
-		this.m_arrowHead.addPoint(0, 0);
-		this.m_arrowHead.addPoint(-w / 2, -h);
-		this.m_arrowHead.addPoint(w / 2, -h);
-		this.m_arrowHead.addPoint(0, 0);
+		this.m_arrowHead = new Polygon(0, 0, -w / 2, -h, w / 2, -h, 0, 0);
 		return this.m_arrowHead;
 	}
 
@@ -241,7 +237,7 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 	 * @see prefuse.render.AbstractShapeRenderer#getTransform(prefuse.visual.VisualItem)
 	 */
 	@Override
-	protected AffineTransform getTransform(final VisualItem item) {
+	protected Affine getTransform(final VisualItem item) {
 		return null;
 	}
 
@@ -276,8 +272,12 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 		}
 		GraphicsLib.setBounds(item, shape, this.getStroke(item));
 		if (this.m_curArrow != null) {
-			final Rectangle2D bbox = (Rectangle2D) item.get(VisualItem.BOUNDS);
-			Rectangle2D.union(bbox, this.m_curArrow.getBounds2D(), bbox);
+			final Bounds bbox = (Bounds) item.get(VisualItem.BOUNDS);
+			final Rectangle rectangle = new Rectangle(bbox.getMinX(), bbox.getMinY(), bbox.getWidth(),
+					bbox.getHeight());
+			final Bounds boundsInLocal = Shape.union(rectangle, this.m_curArrow).getBoundsInLocal();
+			item.setBounds(boundsInLocal.getMinX(), boundsInLocal.getMinY(), boundsInLocal.getWidth(),
+					boundsInLocal.getHeight());
 		}
 	}
 
@@ -302,13 +302,13 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 	 * scaled by the current line width determined by the
 	 * {@link #getLineWidth(VisualItem)} method. Subclasses may override this
 	 * method to perform custom stroke assignment, but should respect the line
-	 * width paremeter stored in the {@link #m_curWidth} member variable, which
+	 * width parameter stored in the {@link #m_curWidth} member variable, which
 	 * caches the result of <code>getLineWidth</code>.
 	 *
 	 * @see prefuse.render.AbstractShapeRenderer#getStroke(prefuse.visual.VisualItem)
 	 */
 	@Override
-	protected BasicStroke getStroke(final VisualItem item) {
+	protected Paint getStroke(final VisualItem item) {
 		return StrokeLib.getDerivedStroke(item.getStroke(), this.m_curWidth);
 	}
 
@@ -336,8 +336,8 @@ public class EdgeRenderer extends AbstractShapeRenderer {
 	protected void getCurveControlPoints(final EdgeItem eitem, final Point2D[] cp, final double x1, final double y1,
 			final double x2, final double y2) {
 		final double dx = x2 - x1, dy = y2 - y1;
-		cp[0].setLocation(x1 + ((2 * dx) / 3), y1);
-		cp[1].setLocation(x2 - (dx / 8), y2 - (dy / 8));
+		cp[0] = new Point2D(x1 + ((2 * dx) / 3), y1);
+		cp[1] = new Point2D(x2 - (dx / 8), y2 - (dy / 8));
 	}
 
 	/**

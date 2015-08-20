@@ -25,9 +25,11 @@ import prefuse.visual.VisualItem;
  */
 public class GraphicsLib {
 
+	/** Indicates only one intersection point available */
+	public static final int INTERSECTION = 1;
 	/** Indicates no intersection between shapes */
 	public static final int NO_INTERSECTION = 0;
-	/** Indicates intersection between shapes */
+	/** Indicates full intersection between shapes */
 	public static final int COINCIDENT = -1;
 	/** Indicates two lines are parallel */
 	public static final int PARALLEL = -2;
@@ -39,17 +41,19 @@ public class GraphicsLib {
 	 *            the first line segment
 	 * @param b
 	 *            the second line segment
-	 * @param intersect
-	 *            a Point in which to store the intersection point
-	 * @return the intersection code. One of {@link #NO_INTERSECTION},
-	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
+	 * @return the intersection status. With an intersection code, one of
+	 *         {@link GraphicsLib#INTERSECTION}
+	 *         {@link GraphicsLib#NO_INTERSECTION},
+	 *         {@link GraphicsLib#COINCIDENT}, or {@link GraphicsLib#PARALLEL}.
+	 *         It might contains also the intersection point (only if
+	 *         intersection code is {@link GraphicsLib#INTERSECTION}).
 	 */
-	public static int intersectLineLine(final Line a, final Line b, final Point2D intersect) {
+	public static IntersectionCheck intersectLineLine(final Line a, final Line b) {
 		final double a1x = a.getStartX(), a1y = a.getStartY();
 		final double a2x = a.getEndX(), a2y = a.getEndY();
 		final double b1x = b.getStartX(), b1y = b.getStartY();
 		final double b2x = b.getEndX(), b2y = b.getEndY();
-		return intersectLineLine(a1x, a1y, a2x, a2y, b1x, b1y, b2x, b2y, intersect);
+		return intersectLineLine(a1x, a1y, a2x, a2y, b1x, b1y, b2x, b2y);
 	}
 
 	/**
@@ -73,28 +77,40 @@ public class GraphicsLib {
 	 *            the y-coordinate of the second endpoint of the second line
 	 * @param intersect
 	 *            a Point in which to store the intersection point
-	 * @return the intersection code. One of {@link #NO_INTERSECTION},
-	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
+	 * @return the intersection status. With an intersection code, one of
+	 *         {@link GraphicsLib#INTERSECTION}
+	 *         {@link GraphicsLib#NO_INTERSECTION},
+	 *         {@link GraphicsLib#COINCIDENT}, or {@link GraphicsLib#PARALLEL}.
+	 *         It might contains also the intersection point (only if
+	 *         intersection code is {@link GraphicsLib#INTERSECTION}).
 	 */
-	public static int intersectLineLine(final double a1x, final double a1y, final double a2x, final double a2y,
-			final double b1x, final double b1y, final double b2x, final double b2y, final Point2D intersect) {
+	public static IntersectionCheck intersectLineLine(final double a1x, final double a1y, final double a2x,
+			final double a2y, final double b1x, final double b1y, final double b2x, final double b2y) {
 		final double ua_t = ((b2x - b1x) * (a1y - b1y)) - ((b2y - b1y) * (a1x - b1x));
 		final double ub_t = ((a2x - a1x) * (a1y - b1y)) - ((a2y - a1y) * (a1x - b1x));
 		final double u_b = ((b2y - b1y) * (a2x - a1x)) - ((b2x - b1x) * (a2y - a1y));
+
+		final IntersectionCheck result = new IntersectionCheck();
 
 		if (u_b != 0) {
 			final double ua = ua_t / u_b;
 			final double ub = ub_t / u_b;
 
 			if ((0 <= ua) && (ua <= 1) && (0 <= ub) && (ub <= 1)) {
-				intersect.setLocation(a1x + (ua * (a2x - a1x)), a1y + (ua * (a2y - a1y)));
-				return 1;
+				result.setIntersectionPoint(new Point2D(a1x + (ua * (a2x - a1x)), a1y + (ua * (a2y - a1y))));
+				result.setIntersectionCode(INTERSECTION);
 			} else {
-				return NO_INTERSECTION;
+				result.setIntersectionCode(NO_INTERSECTION);
 			}
 		} else {
-			return ((ua_t == 0) || (ub_t == 0) ? COINCIDENT : PARALLEL);
+			if ((ua_t == 0) || (ub_t == 0)) {
+				result.setIntersectionCode(COINCIDENT);
+			} else {
+				result.setIntersectionCode(PARALLEL);
+			}
+			;
 		}
+		return result;
 	}
 
 	/**
@@ -110,7 +126,8 @@ public class GraphicsLib {
 	 *            a length 2 or greater array of points in which to store the
 	 *            results
 	 * @return the intersection code. One of {@link #NO_INTERSECTION},
-	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
+	 *         {@link #COINCIDENT}, or {@link #PARALLEL} or the number of
+	 *         intersection points (in case of the value is greater than 0).
 	 */
 	public static int intersectLineRectangle(final Point2D a1, final Point2D a2, final Rectangle2D r,
 			final Point2D[] pts) {
@@ -127,22 +144,29 @@ public class GraphicsLib {
 		}
 
 		int i = 0;
-		if (intersectLineLine(mnx, mny, mxx, mny, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		IntersectionCheck intersectionCheck = intersectLineLine(mnx, mny, mxx, mny, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
-		if (intersectLineLine(mxx, mny, mxx, mxy, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		intersectionCheck = intersectLineLine(mxx, mny, mxx, mxy, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		if (i == 2) {
 			return i;
 		}
-		if (intersectLineLine(mxx, mxy, mnx, mxy, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		intersectionCheck = intersectLineLine(mxx, mxy, mnx, mxy, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		if (i == 2) {
 			return i;
 		}
-		if (intersectLineLine(mnx, mxy, mnx, mny, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		return i;
@@ -159,7 +183,8 @@ public class GraphicsLib {
 	 *            a length 2 or greater array of points in which to store the
 	 *            results
 	 * @return the intersection code. One of {@link #NO_INTERSECTION},
-	 *         {@link #COINCIDENT}, or {@link #PARALLEL}.
+	 *         {@link #COINCIDENT}, or {@link #PARALLEL} or the number of
+	 *         intersection points (in case of the value is greater than 0).
 	 */
 	public static int intersectLineRectangle(final Line l, final Rectangle2D r, final Point2D[] pts) {
 		final double a1x = l.getStartX(), a1y = l.getStartY();
@@ -175,22 +200,30 @@ public class GraphicsLib {
 		}
 
 		int i = 0;
-		if (intersectLineLine(mnx, mny, mxx, mny, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		IntersectionCheck intersectionCheck = intersectLineLine(mnx, mny, mxx, mny, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
-		if (intersectLineLine(mxx, mny, mxx, mxy, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		intersectionCheck = intersectLineLine(mxx, mny, mxx, mxy, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		if (i == 2) {
 			return i;
 		}
-		if (intersectLineLine(mxx, mxy, mnx, mxy, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		intersectionCheck = intersectLineLine(mxx, mxy, mnx, mxy, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		if (i == 2) {
 			return i;
 		}
-		if (intersectLineLine(mnx, mxy, mnx, mny, a1x, a1y, a2x, a2y, pts[i]) > 0) {
+		intersectionCheck = intersectLineLine(mnx, mxy, mnx, mny, a1x, a1y, a2x, a2y);
+		if (intersectionCheck.getIntersectionCode() == INTERSECTION) {
+			pts[i] = intersectionCheck.getIntersectionPoint();
 			i++;
 		}
 		return i;
@@ -719,7 +752,8 @@ public class GraphicsLib {
 	 *            default (line width = 1) stroke is used.
 	 */
 	public static void setBounds(final VisualItem item, final Shape shape, final Paint stroke) {
-		double x, y, w, h, lw, lw2;
+		double x, y, w, h, lw;
+		final double lw2;
 
 		if (shape instanceof Rectangle) {
 			// this covers rectangle, rounded rectangle, ellipse, and arcs
@@ -760,13 +794,13 @@ public class GraphicsLib {
 		}
 
 		// adjust boundary for stroke length as necessary
-		if ((stroke != null) && ((lw = stroke.getLineWidth()) > 1)) {
-			lw2 = lw / 2.0;
-			x -= lw2;
-			y -= lw2;
-			w += lw;
-			h += lw;
-		}
+		// if ((stroke != null) && ((lw = stroke.getLineWidth()) > 1)) {
+		// lw2 = lw / 2.0;
+		// x -= lw2;
+		// y -= lw2;
+		// w += lw;
+		// h += lw;
+		// }
 		item.setBounds(x, y, w, h);
 	}
 
