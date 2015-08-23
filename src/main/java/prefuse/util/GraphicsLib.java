@@ -1,15 +1,18 @@
 package prefuse.util;
 
-import java.awt.geom.GeneralPath;
-
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.ClosePath;
+import javafx.scene.shape.CubicCurveTo;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Affine;
@@ -442,9 +445,10 @@ public class GraphicsLib {
 	 * @return the cardinal spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath cardinalSpline(final float pts[], final float slack, final boolean closed) {
-		final GeneralPath path = new GeneralPath();
-		path.moveTo(pts[0], pts[1]);
+	public static Path cardinalSpline(final float pts[], final float slack, final boolean closed) {
+		final Path path = new Path();
+		final MoveTo moveTo = new MoveTo(pts[0], pts[1]);
+		path.getElements().add(moveTo);
 		return cardinalSpline(path, pts, slack, closed, 0f, 0f);
 	}
 
@@ -469,10 +473,11 @@ public class GraphicsLib {
 	 * @return the cardinal spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath cardinalSpline(final float pts[], final int start, final int npoints, final float slack,
+	public static Path cardinalSpline(final float pts[], final int start, final int npoints, final float slack,
 			final boolean closed) {
-		final GeneralPath path = new GeneralPath();
-		path.moveTo(pts[start], pts[start + 1]);
+		final Path path = new Path();
+		final MoveTo moveTo = new MoveTo(pts[start], pts[start + 1]);
+		path.getElements().add(moveTo);
 		return cardinalSpline(path, pts, start, npoints, slack, closed, 0f, 0f);
 	}
 
@@ -499,8 +504,8 @@ public class GraphicsLib {
 	 * @return the cardinal spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath cardinalSpline(final GeneralPath p, final float pts[], final float slack,
-			final boolean closed, final float tx, final float ty) {
+	public static Path cardinalSpline(final Path p, final float pts[], final float slack, final boolean closed,
+			final float tx, final float ty) {
 		int npoints = 0;
 		for (; npoints < pts.length; ++npoints) {
 			if (Float.isNaN(pts[npoints])) {
@@ -516,7 +521,7 @@ public class GraphicsLib {
 	 * ensuring the connected spline segments form a differentiable curve,
 	 * ensuring at least a minimum level of smoothness.
 	 *
-	 * @param p
+	 * @param path
 	 *            the GeneralPath instance to use to store the result
 	 * @param pts
 	 *            the points to interpolate with a cardinal spline
@@ -537,7 +542,7 @@ public class GraphicsLib {
 	 * @return the cardinal spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath cardinalSpline(final GeneralPath p, final float pts[], final int start, final int npoints,
+	public static Path cardinalSpline(final Path path, final float pts[], final int start, final int npoints,
 			final float slack, final boolean closed, final float tx, final float ty) {
 		// compute the size of the path
 		final int len = 2 * npoints;
@@ -565,8 +570,10 @@ public class GraphicsLib {
 			dy1 = dy2;
 			dx2 = pts[i + 2] - pts[i - 2];
 			dy2 = pts[i + 3] - pts[i - 1];
-			p.curveTo(tx + pts[i - 2] + (slack * dx1), ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2),
-					(ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+			final CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[i - 2] + (slack * dx1),
+					ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2), (ty + pts[i + 1]) - (slack * dy2),
+					tx + pts[i], ty + pts[i + 1]);
+			path.getElements().add(cubicCurveTo);
 		}
 
 		// compute last control point
@@ -575,21 +582,26 @@ public class GraphicsLib {
 			dy1 = dy2;
 			dx2 = pts[start] - pts[i - 2];
 			dy2 = pts[start + 1] - pts[i - 1];
-			p.curveTo(tx + pts[i - 2] + (slack * dx1), ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2),
-					(ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+			CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[i - 2] + (slack * dx1),
+					ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2), (ty + pts[i + 1]) - (slack * dy2),
+					tx + pts[i], ty + pts[i + 1]);
+			path.getElements().add(cubicCurveTo);
 
 			dx1 = dx2;
 			dy1 = dy2;
 			dx2 = pts[start + 2] - pts[end - 2];
 			dy2 = pts[start + 3] - pts[end - 1];
-			p.curveTo(tx + pts[end - 2] + (slack * dx1), ty + pts[end - 1] + (slack * dy1),
+			cubicCurveTo = new CubicCurveTo(tx + pts[end - 2] + (slack * dx1), ty + pts[end - 1] + (slack * dy1),
 					(tx + pts[0]) - (slack * dx2), (ty + pts[1]) - (slack * dy2), tx + pts[0], ty + pts[1]);
-			p.closePath();
+			path.getElements().add(cubicCurveTo);
+			path.getElements().add(new ClosePath());
 		} else {
-			p.curveTo(tx + pts[i - 2] + (slack * dx2), ty + pts[i - 1] + (slack * dy2), (tx + pts[i]) - (slack * dx2),
-					(ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+			final CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[i - 2] + (slack * dx2),
+					ty + pts[i - 1] + (slack * dy2), (tx + pts[i]) - (slack * dx2), (ty + pts[i + 1]) - (slack * dy2),
+					tx + pts[i], ty + pts[i + 1]);
+			path.getElements().add(cubicCurveTo);
 		}
-		return p;
+		return path;
 	}
 
 	/**
@@ -617,8 +629,8 @@ public class GraphicsLib {
 	 * @return the stack spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath stackSpline(final GeneralPath p, final float[] pts, final float epsilon,
-			final float slack, final boolean closed, final float tx, final float ty) {
+	public static Path stackSpline(final Path p, final float[] pts, final float epsilon, final float slack,
+			final boolean closed, final float tx, final float ty) {
 		int npoints = 0;
 		for (; npoints < pts.length; ++npoints) {
 			if (Float.isNaN(pts[npoints])) {
@@ -632,7 +644,7 @@ public class GraphicsLib {
 	 * Computes a set of curves using the cardinal spline approach, but using
 	 * straight lines for completely horizontal or vertical segments.
 	 *
-	 * @param p
+	 * @param path
 	 *            the GeneralPath instance to use to store the result
 	 * @param pts
 	 *            the points to interpolate with the spline
@@ -657,7 +669,7 @@ public class GraphicsLib {
 	 * @return the stack spline as a Java2D {@link java.awt.geom.GeneralPath}
 	 *         instance.
 	 */
-	public static GeneralPath stackSpline(final GeneralPath p, final float pts[], final int start, final int npoints,
+	public static Path stackSpline(final Path path, final float pts[], final int start, final int npoints,
 			final float epsilon, final float slack, final boolean closed, final float tx, final float ty) {
 		// compute the size of the path
 		final int len = 2 * npoints;
@@ -685,10 +697,13 @@ public class GraphicsLib {
 			dx2 = pts[i + 2] - pts[i - 2];
 			dy2 = pts[i + 3] - pts[i - 1];
 			if ((Math.abs(pts[i] - pts[i - 2]) < epsilon) || (Math.abs(pts[i + 1] - pts[i - 1]) < epsilon)) {
-				p.lineTo(tx + pts[i], ty + pts[i + 1]);
+				final LineTo lineTo = new LineTo(tx + pts[i], ty + pts[i + 1]);
+				path.getElements().add(lineTo);
 			} else {
-				p.curveTo(tx + pts[i - 2] + (slack * dx1), ty + pts[i - 1] + (slack * dy1),
-						(tx + pts[i]) - (slack * dx2), (ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+				final CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[i - 2] + (slack * dx1),
+						ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2),
+						(ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+				path.getElements().add(cubicCurveTo);
 			}
 		}
 
@@ -698,27 +713,33 @@ public class GraphicsLib {
 		dx2 = pts[start] - pts[i - 2];
 		dy2 = pts[start + 1] - pts[i - 1];
 		if ((Math.abs(pts[i] - pts[i - 2]) < epsilon) || (Math.abs(pts[i + 1] - pts[i - 1]) < epsilon)) {
-			p.lineTo(tx + pts[i], ty + pts[i + 1]);
+			final LineTo lineTo = new LineTo(tx + pts[i], ty + pts[i + 1]);
+			path.getElements().add(lineTo);
 		} else {
-			p.curveTo(tx + pts[i - 2] + (slack * dx1), ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2),
-					(ty + pts[i + 1]) - (slack * dy2), tx + pts[i], ty + pts[i + 1]);
+			final CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[i - 2] + (slack * dx1),
+					ty + pts[i - 1] + (slack * dy1), (tx + pts[i]) - (slack * dx2), (ty + pts[i + 1]) - (slack * dy2),
+					tx + pts[i], ty + pts[i + 1]);
+			path.getElements().add(cubicCurveTo);
 		}
 
 		// close the curve if requested
 		if (closed) {
 			if ((Math.abs(pts[end - 2] - pts[0]) < epsilon) || (Math.abs(pts[end - 1] - pts[1]) < epsilon)) {
-				p.lineTo(tx + pts[0], ty + pts[1]);
+				final LineTo lineTo = new LineTo(tx + pts[0], ty + pts[1]);
+				path.getElements().add(lineTo);
 			} else {
 				dx1 = dx2;
 				dy1 = dy2;
 				dx2 = pts[start + 2] - pts[end - 2];
 				dy2 = pts[start + 3] - pts[end - 1];
-				p.curveTo(tx + pts[end - 2] + (slack * dx1), ty + pts[end - 1] + (slack * dy1),
-						(tx + pts[0]) - (slack * dx2), (ty + pts[1]) - (slack * dy2), tx + pts[0], ty + pts[1]);
+				final CubicCurveTo cubicCurveTo = new CubicCurveTo(tx + pts[end - 2] + (slack * dx1),
+						ty + pts[end - 1] + (slack * dy1), (tx + pts[0]) - (slack * dx2), (ty + pts[1]) - (slack * dy2),
+						tx + pts[0], ty + pts[1]);
+				path.getElements().add(cubicCurveTo);
 			}
-			p.closePath();
+			path.getElements().add(new ClosePath());
 		}
-		return p;
+		return path;
 	}
 
 	/**
