@@ -4,9 +4,6 @@
  */
 package prefuse.util.display;
 
-import java.awt.Container;
-import java.awt.MediaTracker;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.transform.Affine;
@@ -27,12 +24,12 @@ public class BackgroundPainter implements PaintListener {
 
 	private static final double THRESH = 0.01;
 
-	private Image m_img;
-	private boolean m_fixed;
-	private boolean m_tiled;
+	private final Image image;
+	private final boolean fixed;
+	private final boolean tiled;
 
-	private Affine m_identity;
-	private Clip m_clip;
+	private Affine identity;
+	private Clip clip;
 
 	/**
 	 * Create a new BackgroundPainter.
@@ -50,7 +47,7 @@ public class BackgroundPainter implements PaintListener {
 	 *            only include the image once
 	 */
 	public BackgroundPainter(final String imageLocation, final boolean fixed, final boolean tile) {
-		this(Toolkit.getDefaultToolkit().getImage(IOLib.urlFromString(imageLocation)), fixed, tile);
+		this(new Image(IOLib.urlFromString(imageLocation).toString()), fixed, tile);
 	}
 
 	/**
@@ -67,20 +64,21 @@ public class BackgroundPainter implements PaintListener {
 	 *            only include the image once
 	 */
 	public BackgroundPainter(final Image image, final boolean fixed, final boolean tile) {
-		this.m_img = image;
+		this.image = image;
 
 		// make sure the image is completely loaded
-		final MediaTracker mt = new MediaTracker(new Container());
-		mt.addImage(this.m_img, 0);
-		try {
-			mt.waitForID(0);
-		} catch (final Exception e) {
-			e.printStackTrace();
+		if (this.image.isBackgroundLoading()) {
+			while (this.image.getProgress() != 1) {
+				try {
+					this.wait();
+				} catch (final InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		mt.removeImage(this.m_img, 0);
 
-		this.m_fixed = fixed;
-		this.m_tiled = tile;
+		this.fixed = fixed;
+		this.tiled = tile;
 	}
 
 	/**
@@ -94,23 +92,23 @@ public class BackgroundPainter implements PaintListener {
 		final Affine at = g.getTransform();
 		final boolean translate = isTranslation(at);
 
-		if (this.m_fixed || translate) {
+		if (this.fixed || translate) {
 			// if the background is fixed, we can unset the transform.
 			// if we have no scaling component, we draw the image directly
 			// rather than run it through the transform.
 			// this avoids rendering artifacts on Java 1.5 on Win32.
 
-			final int tx = this.m_fixed ? 0 : (int) at.getTx();
-			final int ty = this.m_fixed ? 0 : (int) at.getTy();
+			final int tx = this.fixed ? 0 : (int) at.getTx();
+			final int ty = this.fixed ? 0 : (int) at.getTy();
 
 			g.setTransform(this.getIdentity());
-			if (this.m_tiled) {
+			if (this.tiled) {
 				// if tiled, compute visible background region and draw tiles
-				final double w = d.getWidth(), iw = this.m_img.getWidth();
-				final double h = d.getHeight(), ih = this.m_img.getHeight();
+				final double w = d.getWidth(), iw = this.image.getWidth();
+				final double h = d.getHeight(), ih = this.image.getHeight();
 
-				double sx = this.m_fixed ? 0 : tx % iw;
-				double sy = this.m_fixed ? 0 : ty % ih;
+				double sx = this.fixed ? 0 : tx % iw;
+				double sy = this.fixed ? 0 : ty % ih;
 				if (sx > 0) {
 					sx -= iw;
 				}
@@ -120,19 +118,19 @@ public class BackgroundPainter implements PaintListener {
 
 				for (double x = sx; x < (w - sx); x += iw) {
 					for (double y = sy; y < (h - sy); y += ih) {
-						g.drawImage(this.m_img, x, y);
+						g.drawImage(this.image, x, y);
 					}
 				}
 			} else {
 				// if not tiled, simply draw the image at the translated origin
-				g.drawImage(this.m_img, tx, ty);
+				g.drawImage(this.image, tx, ty);
 			}
 			g.setTransform(at);
 		} else {
 			// run the image through the display transform
-			if (this.m_tiled) {
-				final double iw = this.m_img.getWidth();
-				final double ih = this.m_img.getHeight();
+			if (this.tiled) {
+				final double iw = this.image.getWidth();
+				final double ih = this.image.getHeight();
 
 				// get the screen region and map it into item-space
 				final Clip c = this.getClip();
@@ -154,12 +152,12 @@ public class BackgroundPainter implements PaintListener {
 				// draw the image tiles
 				for (double x = tx; x < (tx + w); x += iw) {
 					for (double y = ty; y < (ty + h); y += ih) {
-						g.drawImage(this.m_img, x, y);
+						g.drawImage(this.image, x, y);
 					}
 				}
 			} else {
 				// if not tiled, simply draw the image
-				g.drawImage(this.m_img, 0, 0);
+				g.drawImage(this.image, 0, 0);
 			}
 		}
 
@@ -178,20 +176,20 @@ public class BackgroundPainter implements PaintListener {
 	 * Get an identity transform (creating it if necessary)
 	 */
 	private Affine getIdentity() {
-		if (this.m_identity == null) {
-			this.m_identity = new Affine();
+		if (this.identity == null) {
+			this.identity = new Affine();
 		}
-		return this.m_identity;
+		return this.identity;
 	}
 
 	/**
 	 * Get a clip instance (creating it if necessary)
 	 */
 	private Clip getClip() {
-		if (this.m_clip == null) {
-			this.m_clip = new Clip();
+		if (this.clip == null) {
+			this.clip = new Clip();
 		}
-		return this.m_clip;
+		return this.clip;
 	}
 
 	/**
