@@ -1,17 +1,18 @@
 package prefuse.util.ui;
 
-import javafx.scene.text.Font;
-import javafx.scene.text.FontMetrics;
-import java.awt.Graphics;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-
-import javax.swing.JComponent;
-import javax.swing.SwingConstants;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontSmoothingType;
+import javafx.scene.text.TextAlignment;
+import prefuse.util.StringLib;
 
 /**
- * Swing component that acts much like a JLabel, but does not revalidate its
+ * JavaFX component that acts much like a Label, but does not revalidate its
  * bounds when updated, making it much faster but suitable only for use in
  * situations where the initial bounds are sufficient.
  *
@@ -19,13 +20,17 @@ import javax.swing.SwingConstants;
  * @deprecated replaced by a simple javafx.scene.control.Label.
  */
 @Deprecated
-public class JFastLabel extends JComponent {
+public class JFastLabel extends Canvas {
 
-	private String m_text;
-	private int m_valign = SwingConstants.TOP;
-	private int m_halign = SwingConstants.LEFT;
-	private int m_fheight = -1;
-	private boolean m_quality = false;
+	private String text;
+	private VPos valign = VPos.BASELINE;
+	private TextAlignment halign = TextAlignment.LEFT;
+	private int fheight = -1;
+	private boolean quality = false;
+	private Font font = Font.getDefault();
+	private Insets insets = Insets.EMPTY;
+	private Paint foregroundColor = Color.BLACK;
+	private Paint backgroundColor = Color.WHITE;
 
 	/**
 	 * Create a new JFastLabel with no text.
@@ -41,8 +46,7 @@ public class JFastLabel extends JComponent {
 	 *            the label text.
 	 */
 	public JFastLabel(final String text) {
-		this.m_text = text;
-		this.setFont(this.getFont());
+		this.text = text;
 	}
 
 	/**
@@ -51,7 +55,7 @@ public class JFastLabel extends JComponent {
 	 * @return the label text
 	 */
 	public String getText() {
-		return this.m_text;
+		return this.text;
 	}
 
 	/**
@@ -61,17 +65,16 @@ public class JFastLabel extends JComponent {
 	 *            the label text to set
 	 */
 	public void setText(final String text) {
-		this.m_text = text;
+		this.text = text;
 		this.repaint();
 	}
 
 	/**
 	 * @see java.awt.Component#setFont(javafx.scene.text.Font)
 	 */
-	@Override
 	public void setFont(final Font f) {
-		super.setFont(f);
-		this.m_fheight = -1;
+		this.font = f;
+		this.fheight = -1;
 	}
 
 	/**
@@ -79,11 +82,11 @@ public class JFastLabel extends JComponent {
 	 *
 	 * @param align
 	 *            the vertical alignment
-	 * @see javax.swing.SwingConstants
+	 * @see javafx.geometry.VPos
 	 */
-	public void setVerticalAlignment(final int align) {
-		this.m_valign = align;
-		this.m_fheight = -1;
+	public void setVerticalAlignment(final VPos align) {
+		this.valign = align;
+		this.fheight = -1;
 	}
 
 	/**
@@ -91,10 +94,10 @@ public class JFastLabel extends JComponent {
 	 *
 	 * @param align
 	 *            the horizontal alignment
-	 * @see javax.swing.SwingConstants
+	 * @see javafx.scene.text.TextAlignment
 	 */
-	public void setHorizontalAlignment(final int align) {
-		this.m_halign = align;
+	public void setHorizontalAlignment(final TextAlignment align) {
+		this.halign = align;
 	}
 
 	/**
@@ -104,7 +107,7 @@ public class JFastLabel extends JComponent {
 	 * @return true for high quality, false otherwise
 	 */
 	public boolean getHighQuality() {
-		return this.m_quality;
+		return this.quality;
 	}
 
 	/**
@@ -115,59 +118,91 @@ public class JFastLabel extends JComponent {
 	 *            true for high quality, false otherwise
 	 */
 	public void setHighQuality(final boolean b) {
-		this.m_quality = b;
+		this.quality = b;
 	}
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
-	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(final GraphicsContext g) {
 		final Insets ins = this.getInsets();
-		int w = this.getWidth() - ins.left - ins.right;
-		int h = this.getHeight() - ins.top - ins.bottom;
-		if (this.m_fheight == -1) {
-			final FontMetrics fm = g.getFontMetrics(this.getFont());
-			if (this.m_valign == SwingConstants.BOTTOM) {
-				this.m_fheight = fm.getDescent();
-			} else if (this.m_valign == SwingConstants.TOP) {
-				this.m_fheight = fm.getAscent();
+		double w = this.getWidth() - ins.getLeft() - ins.getRight();
+		double h = this.getHeight() - ins.getTop() - ins.getBottom();
+		if (this.fheight == -1) {
+			if (this.valign == VPos.BOTTOM) {
+				this.fheight = (int) this.font.getSize();
+			} else if (this.valign == VPos.TOP) {
+				this.fheight = 0;
 			}
 		}
-		g.setColor(this.getBackground());
-		g.fillRect(ins.left, ins.top, w, h);
+		g.setFill(this.getBackgroundColor());
+		g.fillRect(ins.getLeft(), ins.getTop(), w, h);
 
-		if (this.m_text == null) {
+		if (this.text == null) {
 			return;
 		}
 
-		g.setFont(this.getFont());
-		g.setColor(this.getForeground());
-		if (this.m_valign == SwingConstants.BOTTOM) {
-			h = h - this.m_fheight - ins.bottom;
+		g.setFont(this.font);
+		g.setFill(this.getForegroundColor());
+		if (this.valign == VPos.BOTTOM) {
+			h = h - this.fheight - ins.getBottom();
 		} else {
-			h = ins.top + this.m_fheight;
+			h = ins.getTop() + this.fheight;
 		}
 
-		switch (this.m_halign) {
-		case SwingConstants.RIGHT: {
-			final FontMetrics fm = g.getFontMetrics(this.getFont());
-			w = w - ins.right - fm.stringWidth(this.m_text);
+		switch (this.halign) {
+		case RIGHT: {
+			w = w - ins.getRight() - StringLib.computeStringWidth(this.text, this.font);
 			break;
 		}
-		case SwingConstants.CENTER: {
-			final FontMetrics fm = g.getFontMetrics(this.getFont());
-			w = (ins.left + (w / 2)) - (fm.stringWidth(this.m_text) / 2);
+		case CENTER: {
+			w = (ins.getLeft() + (w / 2)) - (StringLib.computeStringWidth(this.text, this.font) / 2);
 			break;
 		}
 		default:
-			w = ins.left;
+			w = ins.getLeft();
 		}
-		if (this.m_quality) {
-			((GraphicsContext) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		if (this.quality) {
+			// as anti-aliasing is always on, we try to increase its quality
+			g.setFontSmoothingType(FontSmoothingType.LCD);
 		}
-		g.drawString(this.m_text, w, h);
+		g.fillText(this.text, w, h);
+	}
+
+	private Paint getForegroundColor() {
+		return this.foregroundColor;
+	}
+
+	private Paint getBackgroundColor() {
+		return this.backgroundColor;
+	}
+
+	public Insets getInsets() {
+		return this.insets;
+	}
+
+	/**
+	 * Temporary method to be able to call smoothly the paintComponent with
+	 * internal GraphicsContext
+	 *
+	 * @deprecated should be replace by nothing as this component should handle
+	 *             itself the need of repainting what is on screen.
+	 */
+	@Deprecated
+	public void repaint() {
+		this.paintComponent(this.getGraphicsContext2D());
+	}
+
+	public void setInsets(final Insets insets) {
+		this.insets = insets;
+	}
+
+	public void setForegroundColor(final Paint foregroundColor) {
+		this.foregroundColor = foregroundColor;
+	}
+
+	public void setBackgroundColor(final Paint backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 
 } // end of class JFastLabel
