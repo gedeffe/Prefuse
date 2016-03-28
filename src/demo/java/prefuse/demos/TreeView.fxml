@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="mainBorderPane" stylesheets="@treeview.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prefuse.demos.TreeViewControl">
+<BorderPane fx:id="mainBorderPane" stylesheets="@treeview.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prefuse.demos.TreeViewController">
    <bottom>
       <HBox fx:id="bottomBox" prefHeight="20.0" prefWidth="800.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
