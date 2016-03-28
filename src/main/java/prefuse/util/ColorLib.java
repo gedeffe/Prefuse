@@ -242,7 +242,7 @@ public class ColorLib {
         return color & 0xFF;
     }
 
-	/**
+    /**
      * Get the alpha component of the given color. Yet with JavaFX, opacity must
      * be in the range of [0.0;1.0]. <br>
      * It means that we will have to convert old value in the range 0-255 to a
