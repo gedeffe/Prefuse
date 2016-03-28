@@ -2,8 +2,9 @@ package prefuse.action.assignment;
 
 import java.util.logging.Logger;
 
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import prefuse.action.EncoderAction;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
@@ -16,7 +17,10 @@ import prefuse.visual.VisualItem;
  *
  * So we might consider that this class should be completely adapted to this
  * behavior. And it will impact also VisualItem too (for instance, it might
- * extends directly Shape or just redefines corresponding methods).
+ * extends directly Shape or just redefines corresponding methods). <br>
+ * We will start using Paint, yet it does not handle other field than color. So
+ * we will try a {@link Line} instance, and we could move on {@link Rectangle}
+ * if needed.
  *
  * <p>
  * Assignment Action that assigns <code>Stroke</code> values to VisualItems. The
@@ -42,156 +46,157 @@ import prefuse.visual.VisualItem;
  */
 public class StrokeAction extends EncoderAction {
 
-	protected Paint defaultStroke = Color.BLACK;
+    // Black color should be applied by default, until we switch it from css.
+    protected Shape defaultStroke = new Line();
 
-	/**
-	 * Create a new StrokeAction that processes all data groups.
-	 */
-	public StrokeAction() {
-		super();
-	}
+    /**
+     * Create a new StrokeAction that processes all data groups.
+     */
+    public StrokeAction() {
+        super();
+    }
 
-	/**
-	 * Create a new StrokeAction that processes the specified group.
-	 *
-	 * @param group
-	 *            the data group to process
-	 */
-	public StrokeAction(final String group) {
-		super(group);
-	}
+    /**
+     * Create a new StrokeAction that processes the specified group.
+     *
+     * @param group
+     *            the data group to process
+     */
+    public StrokeAction(final String group) {
+        super(group);
+    }
 
-	/**
-	 * Create a new StrokeAction that processes the specified group.
-	 *
-	 * @param group
-	 *            the data group to process
-	 * @param defaultStroke
-	 *            the default Stroke to assign
-	 */
-	public StrokeAction(final String group, final Paint defaultStroke) {
-		super(group);
-		this.defaultStroke = defaultStroke;
-	}
+    /**
+     * Create a new StrokeAction that processes the specified group.
+     *
+     * @param group
+     *            the data group to process
+     * @param defaultStroke
+     *            the default Stroke to assign
+     */
+    public StrokeAction(final String group, final Shape defaultStroke) {
+        super(group);
+        this.defaultStroke = defaultStroke;
+    }
 
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
-	/**
-	 * Set the default BasicStroke to be assigned to items. Items will be
-	 * assigned the default Stroke if they do not match any registered rules.
-	 *
-	 * @param f
-	 *            the default BasicStroke to use
-	 */
-	public void setDefaultStroke(final Paint f) {
-		this.defaultStroke = f;
-	}
+    /**
+     * Set the default BasicStroke to be assigned to items. Items will be
+     * assigned the default Stroke if they do not match any registered rules.
+     *
+     * @param f
+     *            the default BasicStroke to use
+     */
+    public void setDefaultStroke(final Shape f) {
+        this.defaultStroke = f;
+    }
 
-	/**
-	 * Get the default BasicStroke assigned to items.
-	 *
-	 * @return the default BasicStroke
-	 */
-	public Paint getDefaultStroke() {
-		return this.defaultStroke;
-	}
+    /**
+     * Get the default BasicStroke assigned to items.
+     *
+     * @return the default BasicStroke
+     */
+    public Shape getDefaultStroke() {
+        return this.defaultStroke;
+    }
 
-	/**
-	 * Add a mapping rule to this StrokeAction. VisualItems that match the
-	 * provided predicate will be assigned the given BasicStroke value (assuming
-	 * they do not match an earlier rule).
-	 *
-	 * @param p
-	 *            the rule Predicate
-	 * @param stroke
-	 *            the BasicStroke
-	 */
-	public void add(final Predicate p, final Paint stroke) {
-		super.add(p, stroke);
-	}
+    /**
+     * Add a mapping rule to this StrokeAction. VisualItems that match the
+     * provided predicate will be assigned the given BasicStroke value (assuming
+     * they do not match an earlier rule).
+     *
+     * @param p
+     *            the rule Predicate
+     * @param stroke
+     *            the BasicStroke
+     */
+    public void add(final Predicate p, final Shape stroke) {
+        super.add(p, stroke);
+    }
 
-	/**
-	 * Add a mapping rule to this StrokeAction. VisualItems that match the
-	 * provided expression will be assigned the given BasicStroke value
-	 * (assuming they do not match an earlier rule). The provided expression
-	 * String will be parsed to generate the needed rule Predicate.
-	 *
-	 * @param expr
-	 *            the expression String, should parse to a Predicate.
-	 * @param stroke
-	 *            the BasicStroke
-	 * @throws RuntimeException
-	 *             if the expression does not parse correctly or does not result
-	 *             in a Predicate instance.
-	 */
-	public void add(final String expr, final Paint stroke) {
-		final Predicate p = (Predicate) ExpressionParser.parse(expr);
-		this.add(p, stroke);
-	}
+    /**
+     * Add a mapping rule to this StrokeAction. VisualItems that match the
+     * provided expression will be assigned the given BasicStroke value
+     * (assuming they do not match an earlier rule). The provided expression
+     * String will be parsed to generate the needed rule Predicate.
+     *
+     * @param expr
+     *            the expression String, should parse to a Predicate.
+     * @param stroke
+     *            the BasicStroke
+     * @throws RuntimeException
+     *             if the expression does not parse correctly or does not result
+     *             in a Predicate instance.
+     */
+    public void add(final String expr, final Shape stroke) {
+        final Predicate p = (Predicate) ExpressionParser.parse(expr);
+        this.add(p, stroke);
+    }
 
-	/**
-	 * Add a mapping rule to this StrokeAction. VisualItems that match the
-	 * provided predicate will be assigned the BasicStroke value returned by the
-	 * given StrokeAction's getStroke() method.
-	 *
-	 * @param p
-	 *            the rule Predicate
-	 * @param f
-	 *            the delegate StrokeAction to use
-	 */
-	public void add(final Predicate p, final StrokeAction f) {
-		super.add(p, f);
-	}
+    /**
+     * Add a mapping rule to this StrokeAction. VisualItems that match the
+     * provided predicate will be assigned the BasicStroke value returned by the
+     * given StrokeAction's getStroke() method.
+     *
+     * @param p
+     *            the rule Predicate
+     * @param f
+     *            the delegate StrokeAction to use
+     */
+    public void add(final Predicate p, final StrokeAction f) {
+        super.add(p, f);
+    }
 
-	/**
-	 * Add a mapping rule to this StrokeAction. VisualItems that match the
-	 * provided expression will be assigned the given BasicStroke value
-	 * (assuming they do not match an earlier rule). The provided expression
-	 * String will be parsed to generate the needed rule Predicate.
-	 *
-	 * @param expr
-	 *            the expression String, should parse to a Predicate.
-	 * @param f
-	 *            the delegate StrokeAction to use
-	 * @throws RuntimeException
-	 *             if the expression does not parse correctly or does not result
-	 *             in a Predicate instance.
-	 */
-	public void add(final String expr, final StrokeAction f) {
-		final Predicate p = (Predicate) ExpressionParser.parse(expr);
-		super.add(p, f);
-	}
+    /**
+     * Add a mapping rule to this StrokeAction. VisualItems that match the
+     * provided expression will be assigned the given BasicStroke value
+     * (assuming they do not match an earlier rule). The provided expression
+     * String will be parsed to generate the needed rule Predicate.
+     *
+     * @param expr
+     *            the expression String, should parse to a Predicate.
+     * @param f
+     *            the delegate StrokeAction to use
+     * @throws RuntimeException
+     *             if the expression does not parse correctly or does not result
+     *             in a Predicate instance.
+     */
+    public void add(final String expr, final StrokeAction f) {
+        final Predicate p = (Predicate) ExpressionParser.parse(expr);
+        super.add(p, f);
+    }
 
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
-	/**
-	 * @see prefuse.action.ItemAction#process(prefuse.visual.VisualItem, double)
-	 */
-	@Override
-	public void process(final VisualItem item, final double frac) {
-		item.setStroke(this.getStroke(item));
-	}
+    /**
+     * @see prefuse.action.ItemAction#process(prefuse.visual.VisualItem, double)
+     */
+    @Override
+    public void process(final VisualItem item, final double frac) {
+        item.setStroke(this.getStroke(item));
+    }
 
-	/**
-	 * Returns the stroke to use for a given VisualItem. Subclasses should
-	 * override this method to perform customized Stroke assignment.
-	 *
-	 * @param item
-	 *            the VisualItem for which to get the Stroke
-	 * @return the BasicStroke for the given item
-	 */
-	public Paint getStroke(final VisualItem item) {
-		final Object o = this.lookup(item);
-		if (o != null) {
-			if (o instanceof StrokeAction) {
-				return ((StrokeAction) o).getStroke(item);
-			} else if (o instanceof Paint) {
-				return (Paint) o;
-			} else {
-				Logger.getLogger(this.getClass().getName()).warning("Unrecognized Object from predicate chain.");
-			}
-		}
-		return this.defaultStroke;
-	}
+    /**
+     * Returns the stroke to use for a given VisualItem. Subclasses should
+     * override this method to perform customized Stroke assignment.
+     *
+     * @param item
+     *            the VisualItem for which to get the Stroke
+     * @return the BasicStroke for the given item
+     */
+    public Shape getStroke(final VisualItem item) {
+        final Object o = this.lookup(item);
+        if (o != null) {
+            if (o instanceof StrokeAction) {
+                return ((StrokeAction) o).getStroke(item);
+            } else if (o instanceof Shape) {
+                return (Shape) o;
+            } else {
+                Logger.getLogger(this.getClass().getName()).warning("Unrecognized Object from predicate chain.");
+            }
+        }
+        return this.defaultStroke;
+    }
 
 } // end of class StrokeAction
