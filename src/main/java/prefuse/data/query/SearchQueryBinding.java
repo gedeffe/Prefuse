@@ -1,7 +1,6 @@
 package prefuse.data.query;
 
-import javax.swing.JComponent;
-
+import javafx.scene.Node;
 import prefuse.data.Tuple;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.expression.AbstractPredicate;
@@ -16,25 +15,25 @@ import prefuse.visual.VisualTupleSet;
  * of the {@link prefuse.data.search.SearchTupleSet} class from the
  * {@link prefuse.data.search} package can be used to control the type of
  * search index used.
- * 
+ *
  * @author <a href="http://jheer.org">jeffrey heer</a>
  * @see prefuse.data.search.SearchTupleSet
  */
 public class SearchQueryBinding extends DynamicQueryBinding {
 
-    private SearchTupleSet m_set;
-    private Listener m_lstnr;
+    private final SearchTupleSet m_set;
+    private final Listener m_lstnr;
     private Object m_lock;
-    
+
     /**
      * Create a new SearchQueryBinding over the given set and data field.
      * @param ts the TupleSet to query
      * @param field the data field (Table column) to query
      */
-    public SearchQueryBinding(TupleSet ts, String field) {
+    public SearchQueryBinding(final TupleSet ts, final String field) {
         this(ts, field, new PrefixSearchTupleSet());
     }
-    
+
     /**
      * Create a new SearchQueryBinding over the given set and data field,
      * using the specified SearchTupleSet instance. Use this constructor to
@@ -44,38 +43,40 @@ public class SearchQueryBinding extends DynamicQueryBinding {
      * @param field the data field (Table column) to query
      * @param set the {@link prefuse.data.search.SearchTupleSet} to use.
      */
-    public SearchQueryBinding(TupleSet ts, String field, SearchTupleSet set) {
+    public SearchQueryBinding(final TupleSet ts, final String field, final SearchTupleSet set) {
         super(ts, field);
-        m_lstnr = new Listener();
-        setPredicate(new SearchBindingPredicate());
-        
-        m_set = set;
-        m_set.index(ts.tuples(), field);
-        m_set.addTupleSetListener(m_lstnr);
-        
-        if ( ts instanceof VisualTupleSet )
-            m_lock = ((VisualTupleSet)ts).getVisualization();
+        this.m_lstnr = new Listener();
+        this.setPredicate(new SearchBindingPredicate());
+
+        this.m_set = set;
+        this.m_set.index(ts.tuples(), field);
+        this.m_set.addTupleSetListener(this.m_lstnr);
+
+        if ( ts instanceof VisualTupleSet ) {
+            this.m_lock = ((VisualTupleSet)ts).getVisualization();
+        }
     }
-    
+
     /**
      * Return the SearchTupleSet used for conducting searches.
      * @return the {@link prefuse.data.search.SearchTupleSet} used by this
      * dynamic query binding.
      */
     public SearchTupleSet getSearchSet() {
-        return m_set;
+        return this.m_set;
     }
-    
+
     // ------------------------------------------------------------------------
-    
+
     /**
      * Create a new search text panel for searching over the data.
      * @return a {@link prefuse.util.ui.JSearchPanel} bound to this
      * dynamic query.
      * @see prefuse.data.query.DynamicQueryBinding#createComponent()
      */
-    public JComponent createComponent() {
-        return createSearchPanel();
+    @Override
+    public Node createComponent() {
+        return this.createSearchPanel();
     }
 
     /**
@@ -84,9 +85,9 @@ public class SearchQueryBinding extends DynamicQueryBinding {
      * dynamic query.
      */
     public JSearchPanel createSearchPanel() {
-        return createSearchPanel(m_set instanceof PrefixSearchTupleSet);
+        return this.createSearchPanel(this.m_set instanceof PrefixSearchTupleSet);
     }
-    
+
     /**
      * Create a new search text panel for searching over the data.
      * @param monitorKeystrokes if true, each keystroke will cause the
@@ -96,28 +97,30 @@ public class SearchQueryBinding extends DynamicQueryBinding {
      * @return a {@link prefuse.util.ui.JSearchPanel} bound to this
      * dynamic query.
      */
-    public JSearchPanel createSearchPanel(boolean monitorKeystrokes) {
-        JSearchPanel jsp = new JSearchPanel(m_set, m_field, monitorKeystrokes);
-        if ( m_lock != null ) { jsp.setLock(m_lock); }
+    public JSearchPanel createSearchPanel(final boolean monitorKeystrokes) {
+        final JSearchPanel jsp = new JSearchPanel(this.m_set, this.m_field, monitorKeystrokes);
+        if ( this.m_lock != null ) { jsp.setLock(this.m_lock); }
         return jsp;
     }
-    
+
     // ------------------------------------------------------------------------
-    
+
     private class SearchBindingPredicate extends AbstractPredicate {
-        public boolean getBoolean(Tuple t) {
-            String q = m_set.getQuery();
-            return (q==null || q.length()==0 || m_set.containsTuple(t));
+        @Override
+        public boolean getBoolean(final Tuple t) {
+            final String q = SearchQueryBinding.this.m_set.getQuery();
+            return ((q==null) || (q.length()==0) || SearchQueryBinding.this.m_set.containsTuple(t));
         }
         public void touch() {
             this.fireExpressionChange();
         }
     }
-    
+
     private class Listener implements TupleSetListener {
-        public void tupleSetChanged(TupleSet tset, Tuple[] added, Tuple[] removed) {
-            ((SearchBindingPredicate)getPredicate()).touch();
-        }        
+        @Override
+        public void tupleSetChanged(final TupleSet tset, final Tuple[] added, final Tuple[] removed) {
+            ((SearchBindingPredicate)SearchQueryBinding.this.getPredicate()).touch();
+        }
     }
 
 } // end of class SearchQueryBinding
